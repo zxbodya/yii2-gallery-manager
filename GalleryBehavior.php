@@ -1,4 +1,7 @@
 <?php
+
+namespace zxbodya\yii2\galleryManager;
+
 /**
  * Behavior for adding gallery to any model.
  *
@@ -25,6 +28,10 @@ class GalleryBehavior extends CActiveRecordBehavior
     public $name;
     /** @var boolean does images in gallery need descriptions */
     public $description;
+
+    /** @var string Extensions for gallery images */
+    public $extension = 'jpg';
+
     private $_gallery;
 
     /** Will create new gallery after save if no associated gallery exists */
@@ -37,9 +44,16 @@ class GalleryBehavior extends CActiveRecordBehavior
                 $gallery->name = $this->name;
                 $gallery->description = $this->description;
                 $gallery->versions = $this->versions;
+                $gallery->extension = $this->extension;
                 $gallery->save();
 
                 $this->getOwner()->{$this->idAttribute} = $gallery->id;
+            } else {
+                Yii::log(
+                    'Gallery configuration change in web-worker process, this should be in migrations',
+                    CLogger::LEVEL_WARNING
+                );
+                $this->changeConfig();
             }
         }
     }
@@ -58,22 +72,37 @@ class GalleryBehavior extends CActiveRecordBehavior
     public function changeConfig($force = false)
     {
         $gallery = $this->getGallery();
-        if ($gallery == null) return;
+        if ($gallery == null) {
+            return;
+        }
 
-        if ($gallery->versions_data != serialize($this->versions) || $force) {
+
+        $gallery->name = $this->name;
+        $gallery->description = $this->description;
+
+
+        if ($gallery->versions_data != serialize(
+                $this->versions
+            ) || $force || $gallery->extension != $this->extension
+        ) {
             foreach ($gallery->galleryPhotos as $photo) {
                 $photo->removeImages();
             }
-
-            $gallery->name = $this->name;
-            $gallery->description = $this->description;
+            if ($gallery->extension != $this->extension) {
+                foreach ($gallery->galleryPhotos as $photo) {
+                    $photo->changeExtension($gallery->extension, $this->extension);
+                }
+                $gallery->extension = $this->extension;
+            }
             $gallery->versions = $this->versions;
             $gallery->save();
 
+            $gallery = Gallery::model()->findByPk($gallery->id);
             foreach ($gallery->galleryPhotos as $photo) {
                 $photo->updateImages();
             }
         }
+        $gallery->save();
     }
 
     /** @return Gallery Returns gallery associated with model */
@@ -82,16 +111,39 @@ class GalleryBehavior extends CActiveRecordBehavior
         if (empty($this->_gallery)) {
             $this->_gallery = Gallery::model()->findByPk($this->getOwner()->{$this->idAttribute});
         }
+
         return $this->_gallery;
     }
 
     /** @return GalleryPhoto[] Photos from associated gallery */
-    public function getGalleryPhotos()
+    public function getPhotos()
     {
         $criteria = new CDbCriteria();
         $criteria->condition = 'gallery_id = :gallery_id';
         $criteria->params[':gallery_id'] = $this->getOwner()->{$this->idAttribute};
         $criteria->order = '`rank` asc';
+
         return GalleryPhoto::model()->findAll($criteria);
+    }
+
+    /** @return GalleryPhoto[] Photos from associated gallery */
+    public function getFirstPhoto()
+    {
+        $criteria = new CDbCriteria();
+        $criteria->condition = 'gallery_id = :gallery_id';
+        $criteria->params[':gallery_id'] = $this->getOwner()->{$this->idAttribute};
+        $criteria->order = '`rank` asc';
+
+        return GalleryPhoto::model()->find($criteria);
+    }
+
+    /** @return GalleryPhoto[] Photos from associated gallery */
+    public function getPhotoCount()
+    {
+        $criteria = new CDbCriteria();
+        $criteria->condition = 'gallery_id = :gallery_id';
+        $criteria->params[':gallery_id'] = $this->getOwner()->{$this->idAttribute};
+
+        return GalleryPhoto::model()->count($criteria);
     }
 }

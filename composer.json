@@ -16,6 +16,7 @@
     ],
 
     "require": {
-        "z_bodya/yii-image": "dev-default"
+      "yiisoft/yii2-jui": "*",
+      "yiisoft/yii2-imagine": "*"
     }
 }

@@ -6,7 +6,7 @@
  *
  * @version $Id: $
  */
-return array(
+return [
     'Add…' => 'Aggiungi',
     'Close' => 'Chiudi',
     'Description' => 'Descrizione',
@@ -18,4 +18,4 @@ return array(
     'Select all' => 'Seleziona tutto',
     'Drop Files Here…' => 'Rilascia i Files qui…',
     'Uploading images…' => 'Upload immagini…',
-);
+];

@@ -1,18 +1,21 @@
 <?php
 
+namespace zxbodya\yii2\galleryManager\models;
+
+use Yii;
+
 /**
- * This is the model class for table "gallery".
+ * This is the model class for table "{{%gallery}}".
  *
- * The followings are the available columns in table 'gallery':
- * @property integer $id
- * @property string $versions_data
- * @property integer $name
- * @property integer $description
+ * @property integer        $id
+ * @property string         $versions_data
+ * @property integer        $name
+ * @property integer        $description
+ * @property string         $extension
  *
- * The followings are the available model relations:
  * @property GalleryPhoto[] $galleryPhotos
  *
- * @property array $versions Settings for image auto-generation
+ * @property array          $versions Settings for image auto-generation
  * @example
  *  array(
  *       'small' => array(
@@ -26,93 +29,73 @@
  *
  * @author Bogdan Savluk <savluk.bogdan@gmail.com>
  */
-class Gallery extends CActiveRecord
+class Gallery extends \yii\db\ActiveRecord
 {
     /**
-     * Returns the static model of the specified AR class.
-     * @param string $className active record class name.
-     * @return Gallery the static model class
+     * @inheritdoc
      */
-    public static function model($className = __CLASS__)
+    public static function tableName()
     {
-        return parent::model($className);
+        return '{{%gallery}}';
     }
 
     /**
-     * @return string the associated database table name
-     */
-    public function tableName()
-    {
-        if ($this->dbConnection->tablePrefix !== null)
-            return '{{gallery}}';
-        else
-            return 'gallery';
-    }
-
-    /**
-     * @return array validation rules for model attributes.
+     * @inheritdoc
      */
     public function rules()
     {
-        // NOTE: you should only define rules for those attributes that
-        // will receive user inputs.
-        return array(
-            array('name, description', 'safe'),
-            // The following rule is used by search().
-            // Please remove those attributes that should not be searched.
-            array('id, sizes, name, description', 'safe', 'on' => 'search'),
-        );
+        return [
+            [['versions_data'], 'required'],
+            [['versions_data'], 'string'],
+            [['name', 'description'], 'integer'],
+            [['extension'], 'string', 'max' => 10]
+        ];
     }
 
     /**
-     * @return array relational rules.
-     */
-    public function relations()
-    {
-        // NOTE: you may need to adjust the relation name and the related
-        // class name for the relations automatically generated below.
-        return array(
-            'galleryPhotos' => array(self::HAS_MANY, 'GalleryPhoto', 'gallery_id', 'order' => '`rank` asc'),
-        );
-    }
-
-    /**
-     * @return array customized attribute labels (name=>label)
+     * @inheritdoc
      */
     public function attributeLabels()
     {
-        return array(
+        return [
             'id' => 'ID',
+            'versions_data' => 'Versions Data',
             'name' => 'Name',
             'description' => 'Description',
-        );
+            'extension' => 'Extension',
+        ];
     }
 
     /**
-     * Retrieves a list of models based on the current search/filter conditions.
-     * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
+     * @return \yii\db\ActiveQuery
      */
-    public function search()
+    public function getGalleryPhotos()
     {
-        // Warning: Please modify the following code to remove attributes that
-        // should not be searched.
-
-        $criteria = new CDbCriteria;
-
-        $criteria->compare('id', $this->id);
-        $criteria->compare('name', $this->name);
-        $criteria->compare('description', $this->description);
-
-        return new CActiveDataProvider($this, array(
-            'criteria' => $criteria,
-        ));
+        return $this->hasMany(
+            GalleryPhoto::className(),
+            ['gallery_id' => 'id']
+        )->orderBy('`rank` asc');
     }
+
+    public function init()
+    {
+        parent::init();
+        $this->extension = 'jpg';
+    }
+
+
+    /** @var string directory in web root for galleries */
+    public $galleryDir = 'gallery';
+
 
     private $_versions;
 
     public function getVersions()
     {
-        if (empty($this->_versions)) $this->_versions = unserialize($this->versions_data);
+        if (!isset($this->_versions)) {
+            $this->_versions = unserialize($this->versions_data);
+        }
+
         return $this->_versions;
     }
 
@@ -121,11 +104,16 @@ class Gallery extends CActiveRecord
         $this->_versions = $value;
     }
 
-    protected function beforeSave()
+    public function beforeSave($insert)
     {
-        if (!empty($this->_versions))
+        if (isset($this->_versions)) {
             $this->versions_data = serialize($this->_versions);
-        return parent::beforeSave();
+        }
+        if (empty($this->versions_data)) {
+            $this->versions_data = serialize(array());
+        }
+
+        return parent::beforeSave($insert);
     }
 
     public function delete()
@@ -133,8 +121,8 @@ class Gallery extends CActiveRecord
         foreach ($this->galleryPhotos as $photo) {
             $photo->delete();
         }
+
         return parent::delete();
     }
-
 
 }

@@ -2,4 +2,4 @@
 
 uglifyjs -m --unsafe -o ./assets/jquery.galleryManager.min.js ./assets/jquery.galleryManager.js
 uglifyjs -m --unsafe -o ./assets/jquery.iframe-transport.min.js ./assets/jquery.iframe-transport.js
- 
+scss ./assets/galleryManager.scss > ./assets/galleryManager.css

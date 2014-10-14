@@ -1,132 +1,89 @@
 <?php
 
+namespace zxbodya\yii2\galleryManager\models;
+
+use Yii;
+use yii\imagine\Image;
+
 /**
- * This is the model class for table "gallery_photo".
+ * This is the model class for table "{{%gallery_photo}}".
  *
- * The followings are the available columns in table 'gallery_photo':
  * @property integer $id
  * @property integer $gallery_id
  * @property integer $rank
- * @property string $name
- * @property string $description
- * @property string $file_name
+ * @property string  $name
+ * @property string  $description
+ * @property string  $file_name
  *
- * The followings are the available model relations:
  * @property Gallery $gallery
  *
  * @author Bogdan Savluk <savluk.bogdan@gmail.com>
  */
-class GalleryPhoto extends CActiveRecord
+class GalleryPhoto extends \yii\db\ActiveRecord
 {
-    /** @var string Extensions for gallery images */
-    public $galleryExt = 'jpg';
-    /** @var string directory in web root for galleries */
-    public $galleryDir = 'gallery';
-
     /**
-     * Returns the static model of the specified AR class.
-     * @param string $className active record class name.
-     * @return GalleryPhoto the static model class
+     * @inheritdoc
      */
-    public static function model($className = __CLASS__)
+    public static function tableName()
     {
-        return parent::model($className);
+        return '{{%gallery_photo}}';
     }
 
     /**
-     * @return string the associated database table name
-     */
-    public function tableName()
-    {
-        if ($this->dbConnection->tablePrefix !== null)
-            return '{{gallery_photo}}';
-        else
-            return 'gallery_photo';
-
-    }
-
-    /**
-     * @return array validation rules for model attributes.
+     * @inheritdoc
      */
     public function rules()
     {
-        // NOTE: you should only define rules for those attributes that
-        // will receive user inputs.
-        return array(
-            array('gallery_id', 'required'),
-//            array('gallery_id, rank', 'numerical', 'integerOnly' => true),
-            array('name', 'length', 'max' => 512),
-            array('file_name', 'length', 'max' => 128),
-            // The following rule is used by search().
-            // Please remove those attributes that should not be searched.
-            array('id, gallery_id, rank, name, description, file_name', 'safe', 'on' => 'search'),
-        );
+        return [
+            [['gallery_id'], 'required'],
+            [['gallery_id', 'rank'], 'integer'],
+            [['description'], 'string'],
+            [['name', 'file_name'], 'string', 'max' => 255]
+        ];
     }
 
     /**
-     * @return array relational rules.
-     */
-    public function relations()
-    {
-        // NOTE: you may need to adjust the relation name and the related
-        // class name for the relations automatically generated below.
-        return array(
-            'gallery' => array(self::BELONGS_TO, 'Gallery', 'gallery_id'),
-        );
-    }
-
-    /**
-     * @return array customized attribute labels (name=>label)
+     * @inheritdoc
      */
     public function attributeLabels()
     {
-        return array(
+        return [
             'id' => 'ID',
-            'gallery_id' => 'Gallery',
+            'gallery_id' => 'Gallery ID',
             'rank' => 'Rank',
             'name' => 'Name',
             'description' => 'Description',
             'file_name' => 'File Name',
-        );
+        ];
     }
 
     /**
-     * Retrieves a list of models based on the current search/filter conditions.
-     * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
+     * @return \yii\db\ActiveQuery
      */
-    public function search()
+    public function getGallery()
     {
-        // Warning: Please modify the following code to remove attributes that
-        // should not be searched.
-
-        $criteria = new CDbCriteria;
-
-        $criteria->compare('id', $this->id);
-        $criteria->compare('gallery_id', $this->gallery_id);
-        $criteria->compare('rank', $this->rank);
-        $criteria->compare('name', $this->name, true);
-        $criteria->compare('description', $this->description, true);
-        $criteria->compare('file_name', $this->file_name, true);
-
-        return new CActiveDataProvider($this, array(
-            'criteria' => $criteria,
-        ));
+        return $this->hasOne(Gallery::className(), ['id' => 'gallery_id']);
     }
 
-    public function save($runValidation = true, $attributes = null)
+
+    public function save($runValidation = true, $attributeNames = null)
     {
-        parent::save($runValidation, $attributes);
-        if ($this->rank == null) {
+        $wasNew = $this->isNewRecord;
+        $res = parent::save($runValidation, $attributeNames);
+        if ($this->rank === null && $wasNew) {
             $this->rank = $this->id;
             $this->setIsNewRecord(false);
-            $this->save(false);
+            $res = $this->save();
         }
-        return true;
+
+        return $res;
     }
 
     public function getPreview()
     {
-        return Yii::app()->request->baseUrl . '/' . $this->galleryDir . '/_' . $this->getFileName('') . '.' . $this->galleryExt;
+        return Yii::$app->request->baseUrl . '/' . $this->gallery->galleryDir . '/_' . $this->getFileName(
+            ''
+        ) . '.' . $this->gallery->extension;
     }
 
     private function getFileName($version = '')
@@ -136,54 +93,127 @@ class GalleryPhoto extends CActiveRecord
 
     public function getUrl($version = '')
     {
-        return Yii::app()->request->baseUrl . '/' . $this->galleryDir . '/' . $this->getFileName($version) . '.' . $this->galleryExt;
+        return Yii::$app->request->baseUrl . '/' . $this->gallery->galleryDir . '/' . $this->getFileName(
+            $version
+        ) . '.' . $this->gallery->extension;
+    }
+
+
+    public function changeExtension($old, $new)
+    {
+        //convert original
+        Yii::$app->image->load(
+            Yii::getAlias('@webroot') . '/' . $this->gallery->galleryDir . '/' . $this->getFileName('') . '.' . $old
+        )->save(
+            Yii::getAlias('@webroot') . '/' . $this->gallery->galleryDir . '/' . $this->getFileName('') . '.' . $new
+        );
+
+        //create image preview for gallery manager
+        Yii::$app->image->load(
+            Yii::getAlias('@webroot') . '/' . $this->gallery->galleryDir . '/' . $this->getFileName('') . '.' . $old
+        )
+            ->resize(300, null)
+            ->save(
+                Yii::getAlias('@webroot') . '/' . $this->gallery->galleryDir . '/_' . $this->getFileName(
+                    ''
+                ) . '.' . $new
+            );
+
+        $this->removeFile(
+            Yii::getAlias('@webroot') . '/' . $this->gallery->galleryDir . '/' . $this->getFileName('') . '.' . $old
+        );
+        $this->removeFile(
+            Yii::getAlias('@webroot') . '/' . $this->gallery->galleryDir . '/_' . $this->getFileName('') . '.' . $old
+        );
+
     }
 
     public function setImage($path)
     {
+        $originalImage = Image::getImagine()->open($path);
         //save image in original size
-        Yii::app()->image->load($path)->save(Yii::getPathOfAlias('webroot') . '/' . $this->galleryDir . '/' . $this->getFileName('') . '.' . $this->galleryExt);
-        //create image preview for gallery manager
-        Yii::app()->image->load($path)->resize(300, null)->save(Yii::getPathOfAlias('webroot') . '/' . $this->galleryDir . '/_' . $this->getFileName('') . '.' . $this->galleryExt);
 
-        $this->updateImages();
+        $originalImage->save(
+            Yii::getAlias('@webroot') . '/' . $this->gallery->galleryDir . '/' . $this->getFileName(
+                ''
+            ) . '.' . $this->gallery->extension
+        );
+
+        //create image preview for gallery manager
+        $originalImage
+            ->copy()
+            ->resize($originalImage->getSize()->widen(300))->save(
+                Yii::getAlias('@webroot') . '/' . $this->gallery->galleryDir . '/_' . $this->getFileName(
+                    ''
+                ) . '.' . $this->gallery->extension
+            );
+
+        $this->updateImages($originalImage);
     }
 
     public function delete()
     {
-        $this->removeFile(Yii::getPathOfAlias('webroot') . '/' . $this->galleryDir . '/' . $this->getFileName('') . '.' . $this->galleryExt);
-        $this->removeFile(Yii::getPathOfAlias('webroot') . '/' . $this->galleryDir . '/_' . $this->getFileName('') . '.' . $this->galleryExt);
+        $this->removeFile(
+            Yii::getAlias('@webroot') . '/' . $this->gallery->galleryDir . '/' . $this->getFileName(
+                ''
+            ) . '.' . $this->gallery->extension
+        );
+        $this->removeFile(
+            Yii::getAlias('@webroot') . '/' . $this->gallery->galleryDir . '/_' . $this->getFileName(
+                ''
+            ) . '.' . $this->gallery->extension
+        );
 
         $this->removeImages();
+
         return parent::delete();
     }
 
     private function removeFile($fileName)
     {
-        if (file_exists($fileName))
+        if (file_exists($fileName)) {
             @unlink($fileName);
+        }
     }
 
     public function removeImages()
     {
         foreach ($this->gallery->versions as $version => $actions) {
-            $this->removeFile(Yii::getPathOfAlias('webroot') . '/' . $this->galleryDir . '/' . $this->getFileName($version) . '.' . $this->galleryExt);
+            $this->removeFile(
+                Yii::getAlias('@webroot') . '/' . $this->gallery->galleryDir . '/' . $this->getFileName(
+                    $version
+                ) . '.' . $this->gallery->extension
+            );
         }
     }
 
     /**
      * Regenerate image versions
      */
-    public function updateImages()
+    public function updateImages($originalImage = null)
     {
+        if ($originalImage === null) {
+            $originalImage = Image::getImagine()->open(
+                Yii::getAlias('@webroot') . '/' . $this->gallery->galleryDir . '/' . $this->getFileName(
+                    ''
+                ) . '.' . $this->gallery->extension
+            );
+        }
         foreach ($this->gallery->versions as $version => $actions) {
-            $this->removeFile(Yii::getPathOfAlias('webroot') . '/' . $this->galleryDir . '/' . $this->getFileName($version) . '.' . $this->galleryExt);
+            $this->removeFile(
+                Yii::getAlias('@webroot') . '/' . $this->gallery->galleryDir
+                . '/' . $this->getFileName($version) . '.' . $this->gallery->extension
+            );
 
-            $image = Yii::app()->image->load(Yii::getPathOfAlias('webroot') . '/' . $this->galleryDir . '/' . $this->getFileName('') . '.' . $this->galleryExt);
-            foreach ($actions as $method => $args) {
-                call_user_func_array(array($image, $method), is_array($args) ? $args : array($args));
-            }
-            $image->save(Yii::getPathOfAlias('webroot') . '/' . $this->galleryDir . '/' . $this->getFileName($version) . '.' . $this->galleryExt);
+//            foreach ($actions as $method => $args) {
+//                call_user_func_array(array($image, $method), is_array($args) ? $args : array($args));
+//            }
+
+            $originalImage->save(
+                Yii::getAlias('@webroot') . '/' . $this->gallery->galleryDir . '/' . $this->getFileName(
+                    $version
+                ) . '.' . $this->gallery->extension
+            );
         }
     }
 
@@ -192,21 +222,26 @@ class GalleryPhoto extends CActiveRecord
     private function getSize($version = '')
     {
         if (!isset($this->_sizes[$version])) {
-            $path = Yii::getPathOfAlias('webroot') . '/' . $this->galleryDir . '/' . $this->getFileName($version) . '.' . $this->galleryExt;
+            $path = Yii::getAlias('@webroot') . '/' . $this->gallery->galleryDir . '/' . $this->getFileName(
+                    $version
+                ) . '.' . $this->gallery->extension;
             $this->_sizes[$version] = getimagesize($path);
         }
+
         return $this->_sizes[$version];
     }
 
     public function getWidth($version = '')
     {
         $s = $this->getSize($version);
+
         return $s[0];
     }
 
     public function getHeight($version = '')
     {
         $s = $this->getSize($version);
+
         return $s[1];
     }
 }

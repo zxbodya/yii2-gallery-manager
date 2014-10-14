@@ -1,4 +1,5 @@
 /* Photo Gallery */
+
 .gallery-manager {
   position: relative;
   border: 1px solid #DDD;
@@ -8,8 +9,8 @@
   -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075);
   -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075);
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075);
-  min-height: 200px; }
-  .gallery-manager .photo {
+  min-height: 200px;
+  .photo {
     position: relative;
     float: left;
     background-color: #fff;
@@ -25,23 +26,31 @@
     border-radius: 4px;
     -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075);
     -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075);
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075); }
-    .gallery-manager .photo img {
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075);
+    img {
       width: 140px;
-      height: auto; }
-    .gallery-manager .photo a {
-      padding-left: 8px; }
-    .gallery-manager .photo .actions {
+      height: auto;
+    }
+    a {
+      padding-left: 8px;
+    }
+    .actions {
       float: right;
       position: absolute;
       bottom: 4px;
-      right: 4px; }
-  .gallery-manager hr {
-    margin: 0 4px; }
-  .gallery-manager .btn-file {
+      right: 4px;
+    }
+  }
+  hr {
+    margin: 0 4px;
+  }
+
+  .btn-file {
     position: relative;
-    overflow: hidden; }
-  .gallery-manager .btn-file input[type=file] {
+    overflow: hidden;
+  }
+
+  .btn-file input[type=file] {
     position: absolute;
     top: 0;
     right: 0;
@@ -54,50 +63,65 @@
     outline: none;
     background: white;
     cursor: inherit;
-    display: block; }
-  .gallery-manager .caption h5 {
-    margin: 0;
-    font-size: 13px;
-    white-space: nowrap;
-    overflow: hidden; }
-  .gallery-manager .caption p {
-    height: 3em;
-    overflow: hidden;
-    font-size: 13px; }
-  .gallery-manager.no-desc .photo {
-    height: 138px; }
-  .gallery-manager.no-name .photo {
-    height: 160px; }
-  .gallery-manager.no-name-no-desc .photo {
-    height: 120px; }
-  .gallery-manager .image-preview {
+    display: block;
+  }
+
+  .caption {
+    h5 {
+      margin: 0;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    p {
+      height: 3em;
+      overflow: hidden;
+      font-size: 13px;
+    }
+  }
+  &.no-desc .photo {
+    height: 138px;
+  }
+  &.no-name .photo {
+    height: 160px;
+  }
+  &.no-name-no-desc .photo {
+    height: 120px;
+  }
+  .image-preview {
     height: 88px;
-    overflow: hidden; }
-  .gallery-manager .photo-select {
+    overflow: hidden;
+  }
+  .photo-select {
     position: absolute;
     bottom: 8px;
-    left: 8px; }
-  .gallery-manager .photo.selected {
+    left: 8px;
+  }
+  .photo.selected {
     background-color: #cef;
-    border-color: blue; }
-  .gallery-manager .overlay {
+    border-color: blue;
+  }
+  .overlay {
     display: none;
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%; }
-  .gallery-manager .overlay-bg {
+    height: 100%;
+  }
+  .overlay-bg {
     position: absolute;
     top: 0;
     left: 0;
     background-color: #efefef;
     opacity: .5;
     width: 100%;
-    height: 100%; }
-  .gallery-manager.over .overlay {
-    display: block; }
-  .gallery-manager .drop-hint {
+    height: 100%;
+  }
+  &.over .overlay {
+    display: block;
+  }
+  .drop-hint {
     background-color: #efefef;
     border: 2px #777 dashed;
     position: absolute;
@@ -106,28 +130,37 @@
     height: 100px;
     width: 50%;
     margin: -50px 0 0 -25%;
-    text-align: center; }
-  .gallery-manager .drop-hint-info {
+    text-align: center;
+  }
+  .drop-hint-info {
     color: #777;
     font-weight: bold;
     font-size: 30px;
     margin-top: 35px;
     vertical-align: middle;
-    display: inline-block; }
-  .gallery-manager .progress-overlay {
+    display: inline-block;
+  }
+  .progress-overlay {
     display: none;
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%; }
-    .gallery-manager .progress-overlay .modal {
+    height: 100%;
+    .modal {
       position: relative;
       display: block;
-      top: 80px; }
+      top: 80px;
+    }
+  }
+}
 
-.editor-modal .photo-editor {
-  min-height: 156px;
-  padding: 4px; }
-  .editor-modal .photo-editor:not(:last-child) {
-    border-bottom: 1px solid #DDD; }
+.editor-modal {
+  .photo-editor {
+    min-height: 156px;
+    padding: 4px;
+    &:not(:last-child) {
+      border-bottom: 1px solid #DDD;
+    }
+  }
+}

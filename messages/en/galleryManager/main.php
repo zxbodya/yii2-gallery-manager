@@ -18,16 +18,16 @@
  *
  * @version $Id: $
  */
-return array(
-    'Description' => 'Опис',
-    'Name' => 'Назва',
-    'Add…' => 'Додати…',
-    'Close' => 'Закрити',
-    'Edit information' => 'Редагування інформації',
-    'Edit' => 'Редагувати',
-    'Remove' => 'Видалити',
-    'Save changes' => 'Зберегти зміни',
-    'Select all' => 'Вибрати все',
-    'Drop Files Here…' => 'Перетяніть файли сюди',
-    'Uploading images…' => 'Зображення завантажуються',
-);
+return [
+    'Add…' => '',
+    'Close' => '',
+    'Description' => '',
+    'Edit information' => '',
+    'Edit' => '',
+    'Name' => '',
+    'Remove' => '',
+    'Save changes' => '',
+    'Select all' => '',
+    'Drop Files Here…' => '',
+    'Uploading images…' => '',
+];
