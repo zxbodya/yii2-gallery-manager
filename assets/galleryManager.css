@@ -1,0 +1,219 @@
+/* Photo Gallery */
+.GalleryEditor {
+    position: relative;
+    border: 1px solid #DDD;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075);
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075);
+}
+
+.GalleryEditor div.gform {
+    margin: 0;
+}
+
+.GalleryEditor div.gform >.btn:first-child{
+    margin-left: 4px;
+}
+.GalleryEditor div.gform .btn{
+    padding: 4px 8px;
+}
+.GalleryEditor .photo {
+    position: relative;
+    float: left;
+    background-color: #fff;
+    margin: 4px;
+    height: 178px;
+    width: 140px;
+
+    display: block;
+    padding: 4px;
+    line-height: 1;
+    border: 1px solid #DDD;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075);
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075);
+}
+
+.GalleryEditor .photo img {
+    width: 140px;
+    height: auto;
+}
+
+.GalleryEditor .photo a {
+    padding-left: 8px;
+}
+
+.GalleryEditor .photo .actions {
+    float: right;
+
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+}
+
+.GalleryEditor hr {
+    margin: 0 4px;
+}
+
+.GalleryEditor .fileinput-button {
+    position: relative;
+    overflow: hidden;
+    margin-left: 8px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.GalleryEditor .fileinput-button input {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    transform: translate(-300px, 0) scale(4);
+    font-size: 23px;
+    opacity: 0;
+    filter: alpha(opacity = 0);
+    -moz-transform: translate(-300px, 0) scale(4);
+    direction: ltr;
+    cursor: pointer;
+}
+
+/* modal styles*/
+.GalleryEditor .preview {
+    overflow: hidden;
+    width: 200px;
+    height: 156px;
+    margin-right: 10px;
+    overflow: hidden;
+    float: left;
+}
+
+.GalleryEditor .preview img {
+    width: 200px;
+}
+
+.GalleryEditor .photo-editor {
+    min-height: 156px;
+    margin-bottom: 4px;
+    padding: 4px;
+    border: 1px solid #DDD;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075);
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075);
+}
+
+.photo-editor form {
+    margin-bottom: 0;
+}
+
+.GalleryEditor .caption h5 {
+    margin: 0;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.GalleryEditor .caption p {
+    height: 3em;
+    overflow: hidden;
+    font-size: 13px;
+}
+
+/* fixed thumbnail sizes */
+.GalleryEditor.no-desc .photo {
+    height: 138px;
+}
+
+.GalleryEditor.no-name .photo {
+    height: 160px;
+}
+
+.GalleryEditor.no-name-no-desc .photo {
+    height: 120px;
+}
+
+.GalleryEditor .image-preview {
+    height: 88px;
+    overflow: hidden;
+}
+
+/* item selection */
+.GalleryEditor .photo-select {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+}
+
+.GalleryEditor .photo.selected {
+    background-color: #cef;
+    border-color: blue;
+}
+
+/* drag & drop hint above gallery */
+.GalleryEditor .overlay {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.GalleryEditor .overlay-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #efefef;
+    opacity: .5;
+    width: 100%;
+    height: 100%;
+}
+
+.GalleryEditor.over .overlay {
+    display: block;
+}
+
+.GalleryEditor .drop-hint {
+    background-color: #efefef;
+    border: 2px #777 dashed;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 100px;
+    width: 50%;
+    margin: -50px 0 0 -25%;
+    text-align: center;
+}
+
+.GalleryEditor .drop-hint-info {
+    color: #777;
+    font-weight: bold;
+    font-size: 30px;
+    margin-top: 35px;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+
+/* upload progress */
+
+.GalleryEditor .progress-overlay {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.GalleryEditor .progress-overlay .modal{
+    position: relative;
+    top: 80px;
+}
