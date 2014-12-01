@@ -1,22 +1,28 @@
 {
-    "name": "z_bodya/yii-gallery-manager",
+    "name": "zxbodya/yii2-gallery-manager",
     "description": "Extension for yii, that allows to manage image galleries",
-    "keywords": ["image", "gallery"],
-    "type": "yii-extension",
-    "extra": {
-        "installer-name": "galleryManager"
-    },
-    "license": "BSD-3-Clause",
-
+    "type": "yii2-extension",
+    "keywords": [
+        "yii2",
+        "extension",
+        "image",
+        "gallery"
+    ],
+    "license": "MIT",
     "authors": [
         {
             "name": "Bogdan Savluk",
             "email": "savluk.bogdan@gmail.com"
         }
     ],
-
     "require": {
-      "yiisoft/yii2-jui": "*",
-      "yiisoft/yii2-imagine": "*"
+        "yiisoft/yii2-jui": "*",
+        "yiisoft/yii2-imagine": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "zxbodya\\yii2\\galleryManager\\": ""
+        }
     }
 }
+
