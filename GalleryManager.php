@@ -5,10 +5,9 @@ namespace zxbodya\yii2\galleryManager;
 use Yii;
 use yii\base\Exception;
 use yii\base\Widget;
+use yii\db\ActiveRecord;
 use yii\helpers\Json;
 use yii\helpers\Url;
-use yii\web\JsExpression;
-use zxbodya\yii2\galleryManager\models\Gallery;
 
 /**
  * Widget to manage gallery.
@@ -18,8 +17,15 @@ use zxbodya\yii2\galleryManager\models\Gallery;
  */
 class GalleryManager extends Widget
 {
-    /** @var Gallery Model of gallery to manage */
-    public $gallery;
+    /** @var ActiveRecord */
+    public $model;
+
+    /** @var string */
+    public $behaviorName;
+
+    /** @var GalleryBehavior Model of gallery to manage */
+    private $behavior;
+
     /** @var string Route to gallery controller */
     public $apiRoute = false;
 
@@ -29,6 +35,7 @@ class GalleryManager extends Widget
     public function init()
     {
         parent::init();
+        $this->behavior = $this->model->getBehavior($this->behaviorName);
         $this->registerTranslations();
     }
 
@@ -51,33 +58,34 @@ class GalleryManager extends Widget
             throw new Exception('$apiRoute must be set.', 500);
         }
 
-        $photos = array();
-        foreach ($this->gallery->galleryPhotos as $photo) {
-            $photos[] = array(
-                'id' => $photo->id,
-                'rank' => $photo->rank,
-                'name' => (string)$photo->name,
-                'description' => (string)$photo->description,
-                'preview' => $photo->getPreview(),
+        $images = array();
+        foreach ($this->behavior->getImages() as $image) {
+            $images[] = array(
+                'id' => $image->id,
+                'rank' => $image->rank,
+                'name' => (string)$image->name,
+                'description' => (string)$image->description,
+                'preview' => $image->getUrl('preview'),
             );
         }
 
+        $baseUrl = [
+            $this->apiRoute,
+            'type' => $this->behavior->type,
+            'behaviorName' => $this->behaviorName,
+            'galleryId' => $this->model->getPrimaryKey()
+        ];
+
         $opts = array(
-            'hasName' => $this->gallery->name ? true : false,
-            'hasDesc' => $this->gallery->description ? true : false,
-            'uploadUrl' => Url::to(
-                [
-                    $this->apiRoute,
-                    'action' => 'ajaxUpload',
-                    'gallery_id' => $this->gallery->id
-                ]
-            ),
-            'deleteUrl' => Url::to([$this->apiRoute, 'action' => 'delete']),
-            'updateUrl' => Url::to([$this->apiRoute, 'action' => 'changeData']),
-            'arrangeUrl' => Url::to([$this->apiRoute, 'action' => 'order']),
+            'hasName' => $this->behavior->hasName ? true : false,
+            'hasDesc' => $this->behavior->hasDescription ? true : false,
+            'uploadUrl' => Url::to($baseUrl + ['action' => 'ajaxUpload']),
+            'deleteUrl' => Url::to($baseUrl + ['action' => 'delete']),
+            'updateUrl' => Url::to($baseUrl + ['action' => 'changeData']),
+            'arrangeUrl' => Url::to($baseUrl + ['action' => 'order']),
             'nameLabel' => Yii::t('galleryManager/main', 'Name'),
             'descriptionLabel' => Yii::t('galleryManager/main', 'Description'),
-            'photos' => $photos,
+            'photos' => $images,
         );
 
         $opts = Json::encode($opts);

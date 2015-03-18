@@ -2,13 +2,13 @@
 
 namespace zxbodya\yii2\galleryManager;
 
+
 use Yii;
 use yii\base\Action;
+use yii\db\ActiveRecord;
 use yii\helpers\Json;
 use yii\web\HttpException;
-use yii\web\Response;
 use yii\web\UploadedFile;
-use zxbodya\yii2\galleryManager\models\GalleryPhoto;
 
 /**
  * Backend controller for GalleryManager widget.
@@ -23,14 +23,37 @@ use zxbodya\yii2\galleryManager\models\GalleryPhoto;
 class GalleryManagerAction extends Action
 {
 
+    /**
+     * @var array Mapping between types and model class names
+     */
+    public $types = [];
+
+
+    private $type;
+    private $behaviorName;
+    private $galleryId;
+
+    /** @var  ActiveRecord */
+    private $owner;
+    /** @var  GalleryBehavior */
+    private $behavior;
+
+
     public function run($action)
     {
+        $this->type = Yii::$app->request->get('type');
+        $this->behaviorName = Yii::$app->request->get('behaviorName');
+        $this->galleryId = Yii::$app->request->get('galleryId');
+
+        $this->owner = call_user_func([$this->types[$this->type], 'findOne'], $this->galleryId);
+        $this->behavior = $this->owner->getBehavior($this->behaviorName);
+
         switch ($action) {
             case 'delete':
                 return $this->actionDelete(Yii::$app->request->post('id'));
                 break;
             case 'ajaxUpload':
-                return $this->actionAjaxUpload(Yii::$app->request->get('gallery_id'));
+                return $this->actionAjaxUpload();
                 break;
             case 'changeData':
                 return $this->actionChangeData(Yii::$app->request->post('photo'));
@@ -48,22 +71,15 @@ class GalleryManagerAction extends Action
      * Removes image with ids specified in post request.
      * On success returns 'OK'
      *
-     * @param $id
+     * @param $ids
      *
      * @throws HttpException
      * @return string
      */
-    private function actionDelete($id)
+    private function actionDelete($ids)
     {
-        /** @var $photos GalleryPhoto[] */
-        $photos = GalleryPhoto::findAll(['id' => $id]);
-        foreach ($photos as $photo) {
-            if ($photo !== null) {
-                $photo->delete();
-            } else {
-                throw new HttpException(404, 'Photo, not found');
-            }
-        }
+
+        $this->behavior->deleteImages($ids);
 
         return 'OK';
     }
@@ -77,15 +93,13 @@ class GalleryManagerAction extends Action
      * @return string
      * @throws HttpException
      */
-    public function actionAjaxUpload($gallery_id)
+    public function actionAjaxUpload()
     {
-        $model = new GalleryPhoto();
-        $model->gallery_id = $gallery_id;
-        $imageFile = UploadedFile::getInstanceByName('image');
-        $model->file_name = $imageFile->name;
-        $model->save();
 
-        $model->setImage($imageFile->tempName);
+        $imageFile = UploadedFile::getInstanceByName('image');
+
+        $fileName = $imageFile->tempName;
+        $image = $this->behavior->addImage($fileName);
 
         // not "application/json", because  IE8 trying to save response as a file
 
@@ -93,11 +107,11 @@ class GalleryManagerAction extends Action
 
         return Json::encode(
             array(
-                'id' => $model->id,
-                'rank' => $model->rank,
-                'name' => (string)$model->name,
-                'description' => (string)$model->description,
-                'preview' => $model->getPreview(),
+                'id' => $image->id,
+                'rank' => $image->rank,
+                'name' => (string)$image->name,
+                'description' => (string)$image->description,
+                'preview' => $image->getUrl('preview'),
             )
         );
     }
@@ -112,26 +126,7 @@ class GalleryManagerAction extends Action
         if (count($order) == 0) {
             throw new HttpException(400, 'No data, to save');
         }
-        $orders = array();
-        $i = 0;
-        foreach ($order as $k => $v) {
-            if (!$v) {
-                $order[$k] = $k;
-            }
-            $orders[] = $order[$k];
-            $i++;
-        }
-        sort($orders);
-        $i = 0;
-        $res = array();
-        foreach ($order as $k => $v) {
-            /** @var $p GalleryPhoto */
-            $p = GalleryPhoto::findOne(['id' => $k]);
-            $p->rank = $orders[$i];
-            $res[$k] = $orders[$i];
-            $p->save(false);
-            $i++;
-        }
+        $res = $this->behavior->arrange($order);
 
         return Json::encode($res);
 
@@ -141,38 +136,25 @@ class GalleryManagerAction extends Action
      * Method to update images name/description via AJAX.
      * On success returns JSON array od objects with new image info.
      *
-     * @param $photo
+     * @param $imagesData
      *
      * @throws HttpException
      * @return string
      */
-    public function actionChangeData($photo)
+    public function actionChangeData($imagesData)
     {
-        if (count($photo) == 0) {
+        if (count($imagesData) == 0) {
             throw new HttpException(400, 'Nothing to save');
         }
-        /** @var $models GalleryPhoto[] */
-        $models = GalleryPhoto::find()
-            ->where(['in', 'id', array_keys($photo)])
-            ->indexBy('id')
-            ->all();
-        foreach ($photo as $id => $attributes) {
-            if (isset($attributes['name'])) {
-                $models[$id]->name = $attributes['name'];
-            }
-            if (isset($attributes['description'])) {
-                $models[$id]->description = $attributes['description'];
-            }
-            $models[$id]->save();
-        }
+        $images = $this->behavior->updateImagesData($imagesData);
         $resp = array();
-        foreach ($models as $model) {
+        foreach ($images as $model) {
             $resp[] = array(
                 'id' => $model->id,
                 'rank' => $model->rank,
                 'name' => (string)$model->name,
                 'description' => (string)$model->description,
-                'preview' => $model->getPreview(),
+                'preview' => $model->getUrl('preview'),
             );
         }
 

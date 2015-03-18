@@ -12,12 +12,13 @@ use yii\web\View;
     <!-- Gallery Toolbar -->
 
     <div class="btn-toolbar" style="padding:4px">
-        <div class="btn btn-success btn-file">
-            <i class="glyphicon glyphicon-plus"></i><?php echo Yii::t('galleryManager/main', 'Add…'); ?>
-            <input type="file" name="image" class="afile" accept="image/*" multiple="multiple"/>
+        <div class="btn-group" style="display: inline-block;">
+            <div class="btn btn-success btn-file" style="display: inline-block">
+                <i class="glyphicon glyphicon-plus"></i><?php echo Yii::t('galleryManager/main', 'Add…'); ?>
+                <input type="file" name="image" class="afile" accept="image/*" multiple="multiple"/>
+            </div>
         </div>
-
-        <div class="btn-group">
+        <div class="btn-group" style="display: inline-block;">
 
             <label class="btn btn-default">
                 <input type="checkbox" style="margin-right: 4px;" class="select_all"><?php echo Yii::t(
@@ -25,7 +26,6 @@ use yii\web\View;
                     'Select all'
                 ); ?>
             </label>
-
             <div class="btn btn-default disabled edit_selected">
                 <i class="glyphicon glyphicon-pencil"></i> <?php echo Yii::t('galleryManager/main', 'Edit'); ?>
             </div>
