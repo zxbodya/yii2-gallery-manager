@@ -325,7 +325,6 @@ class GalleryBehavior extends Behavior
 
     public function arrange($order)
     {
-        //todo:
         $orders = array();
         $i = 0;
         foreach ($order as $k => $v) {
@@ -339,14 +338,19 @@ class GalleryBehavior extends Behavior
         $i = 0;
         $res = array();
         foreach ($order as $k => $v) {
-            /** @var $p GalleryPhoto */
-            $p = GalleryPhoto::findOne(['id' => $k]);
-            $p->rank = $orders[$i];
             $res[$k] = $orders[$i];
-            $p->save(false);
+
+            \Yii::$app->db->createCommand()
+                ->update(
+                    '{{%gallery_image}}',
+                    ['rank' => $orders[$i]],
+                    ['id' => $k]
+                )->execute();
+
             $i++;
         }
 
+        // todo: arrange images if presented
         return $order;
     }
 
