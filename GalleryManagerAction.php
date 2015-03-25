@@ -24,19 +24,22 @@ class GalleryManagerAction extends Action
 {
 
     /**
+     * $types to be defined at Controller::actions()
      * @var array Mapping between types and model class names
+     * @example 'post'=>'common\models\Post'
+     * @see GalleryManagerAction::run
      */
     public $types = [];
 
 
-    private $type;
-    private $behaviorName;
-    private $galleryId;
+    protected $type;
+    protected $behaviorName;
+    protected $galleryId;
 
     /** @var  ActiveRecord */
-    private $owner;
+    protected $owner;
     /** @var  GalleryBehavior */
-    private $behavior;
+    protected $behavior;
 
 
     public function run($action)
@@ -76,7 +79,7 @@ class GalleryManagerAction extends Action
      * @throws HttpException
      * @return string
      */
-    private function actionDelete($ids)
+    protected function actionDelete($ids)
     {
 
         $this->behavior->deleteImages($ids);
@@ -134,7 +137,7 @@ class GalleryManagerAction extends Action
 
     /**
      * Method to update images name/description via AJAX.
-     * On success returns JSON array od objects with new image info.
+     * On success returns JSON array of objects with new image info.
      *
      * @param $imagesData
      *

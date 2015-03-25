@@ -24,7 +24,7 @@ class GalleryManager extends Widget
     public $behaviorName;
 
     /** @var GalleryBehavior Model of gallery to manage */
-    private $behavior;
+    protected $behavior;
 
     /** @var string Route to gallery controller */
     public $apiRoute = false;

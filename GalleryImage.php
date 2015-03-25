@@ -11,7 +11,7 @@ class GalleryImage
     /**
      * @var GalleryBehavior
      */
-    private $galleryBehavior;
+    protected $galleryBehavior;
 
     /**
      * @param GalleryBehavior $galleryBehavior
