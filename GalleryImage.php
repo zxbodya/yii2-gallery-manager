@@ -2,7 +2,9 @@
 
 namespace zxbodya\yii2\galleryManager;
 
-class GalleryImage
+use yii\base\Model;
+
+class GalleryImage extends Model
 {
     public $name;
     public $description;
@@ -36,5 +38,12 @@ class GalleryImage
     public function getUrl($version)
     {
         return $this->galleryBehavior->getUrl($this->id, $version);
+    }
+
+    /**
+     * @return GalleryBehavior
+     */
+    public function getGalleryBehavior(){
+        return $this->galleryBehavior;
     }
 }
