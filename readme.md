@@ -36,14 +36,23 @@ to the require section of your `composer.json` file.
 
 ## Usage
 
-Add migration to create table for images:
+Run migration:
+```
+./yii migrate/up --migrationPath=@zxbodya/yii2/galleryManager/migrations
+```
+
+Before migration you can change table name of gallery (by default is ```{{%gallery_image}}```).
+
+Add following code to ```params.php``` config file:
 
 ```php
-class m150318_154933_gallery_ext
-    extends zxbodya\yii2\galleryManager\migrations\m140930_003227_gallery_manager
-{
-
-}
+'zxbodya' => [
+    'yii2' => [
+        'galleryManager' => [
+            'tableName' => '{{%my_table_name}}',
+        ],
+    ],
+],
 ```
 
 Add GalleryBehavior to your model, and configure it, create folder for uploaded files.
