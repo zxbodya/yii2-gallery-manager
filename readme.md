@@ -45,6 +45,7 @@ class m150318_154933_gallery_ext
 
 }
 ```
+Or better - copy migration to you application.
 
 Add GalleryBehavior to your model, and configure it, create folder for uploaded files.
 
@@ -127,3 +128,9 @@ foreach($model->getBehavior('galleryBehavior')->getImages() as $image) {
 ```
 
 
+## Options 
+
+Using non default table name for gallery images(default is `{{%gallery_image}}`):
+
+1. Add migration that will create table you need
+2. Change `tableName` property in behavior configuration

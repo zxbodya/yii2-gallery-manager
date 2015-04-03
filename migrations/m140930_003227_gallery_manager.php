@@ -6,11 +6,13 @@ use yii\db\Migration;
 
 class m140930_003227_gallery_manager extends Migration
 {
+    public $tableName = '{{%gallery_image}}';
+
     public function up()
     {
 
         $this->createTable(
-            '{{%gallery_image}}',
+            $this->tableName,
             array(
                 'id' => Schema::TYPE_PK,
                 'type' => Schema::TYPE_STRING,
@@ -24,6 +26,6 @@ class m140930_003227_gallery_manager extends Migration
 
     public function down()
     {
-        $this->dropTable('{{%gallery_image}}');
+        $this->dropTable($this->tableName);
     }
 }
