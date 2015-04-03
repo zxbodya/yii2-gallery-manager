@@ -1,16 +1,24 @@
 <?php
-namespace zxbodya\yii2\galleryManager\migrations;
 
 use yii\db\Schema;
 use yii\db\Migration;
 
 class m140930_003227_gallery_manager extends Migration
 {
+    private $_tableName = '{{%gallery_image}}';
+    
+    public function init()
+    {
+        parent::init();
+        if (isset(Yii::$app->params['zxbodya']['yii2']['galleryManager']['tableName'])) {
+            $this->_tableName = Yii::$app->params['zxbodya']['yii2']['galleryManager']['tableName'];
+        }
+    }
+    
     public function up()
     {
-
         $this->createTable(
-            '{{%gallery_image}}',
+            $this->_tableName,
             array(
                 'id' => Schema::TYPE_PK,
                 'type' => Schema::TYPE_STRING,
@@ -24,6 +32,6 @@ class m140930_003227_gallery_manager extends Migration
 
     public function down()
     {
-        $this->dropTable('{{%gallery_image}}');
+        $this->dropTable($this->_tableName);
     }
 }
