@@ -38,7 +38,7 @@ to the require section of your `composer.json` file.
 
 Run migration:
 ```
-/yii migrate/up --migrationPath=@zxbodya/yii2/galleryManager/migrations
+./yii migrate/up --migrationPath=@zxbodya/yii2/galleryManager/migrations
 ```
 
 Before migration you can change table name of gallery (by default is ```{{%gallery_image}}```).
