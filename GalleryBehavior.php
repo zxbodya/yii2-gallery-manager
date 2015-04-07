@@ -21,10 +21,13 @@ class GalleryBehavior extends Behavior
 {
     /**
      * @var string Type name assigned to model in image attachment action
+     * @see     GalleryManagerAction::$types
+     * @example $type = 'Post' where 'Post' is the model name
      */
     public $type;
     /**
      * @var ActiveRecord the owner of this behavior
+     * @example $owner = Post where Post is the ActiveRecord with GalleryBehavior attached under public function behaviors()
      */
     public $owner;
     /**
@@ -78,13 +81,25 @@ class GalleryBehavior extends Behavior
      * @var string
      */
     public $timeHash = '_';
+
+    /**
+     * Used by GalleryManager
+     * @var bool
+     * @see GalleryManager::run
+     */
     public $hasName = true;
+    /**
+     * Used by GalleryManager
+     * @var bool
+     * @see GalleryManager::run
+     */
     public $hasDescription = true;
+
     /**
      * @var string Table name for saving gallery images meta information
      */
     public $tableName = '{{%gallery_image}}';
-    private $_galleryId;
+    protected $_galleryId;
 
     /**
      * @param ActiveRecord $owner
@@ -140,7 +155,7 @@ class GalleryBehavior extends Behavior
         }
     }
 
-    private $_images = null;
+    protected $_images = null;
 
     /**
      * @return GalleryImage[]
@@ -166,17 +181,22 @@ class GalleryBehavior extends Behavior
         return $this->_images;
     }
 
-    private function getFileName($imageId, $version = 'original')
+    protected function getFileName($imageId, $version = 'original')
     {
-        $galleryId = $this->getGalleryId();
-        $ext = $this->extension;
-
-        return $galleryId . '/' . $imageId . '/' . $version . '.' . $ext;
+        return implode(
+            DIRECTORY_SEPARATOR,
+            [
+                $this->getGalleryId(),
+                $imageId,
+                $version . '.' . $this->extension,
+            ]
+        );
     }
 
     public function getUrl($imageId, $version = 'original')
     {
         $path = $this->getFilePath($imageId, $version);
+
         if (!file_exists($path)) {
             return null;
         }
@@ -226,6 +246,12 @@ class GalleryBehavior extends Behavior
         }
     }
 
+    /**
+     * Get Gallery Id
+     *
+     * @return mixed as string or integer
+     * @throws Exception
+     */
     public function getGalleryId()
     {
         $pk = $this->owner->getPrimaryKey();
@@ -242,19 +268,10 @@ class GalleryBehavior extends Behavior
         $parts = explode('/', $filePath);
         // skip file name
         $parts = array_slice($parts, 0, count($parts) - 1);
-        $i = 0;
-
-        $path = implode('/', array_slice($parts, 0, count($parts) - $i));
-        while (!file_exists($path)) {
-            $i++;
-            $path = implode('/', array_slice($parts, 0, count($parts) - $i));
-        }
-        $i--;
-        $path = implode('/', array_slice($parts, 0, count($parts) - $i));
-        while ($i >= 0) {
-            mkdir($path, 0777);
-            $i--;
-            $path = implode('/', array_slice($parts, 0, count($parts) - $i));
+        $targetPath = implode(DIRECTORY_SEPARATOR, $parts);
+        $path = realpath($targetPath);
+        if (!$path) {
+            mkdir($targetPath, 0777, true);
         }
     }
 
@@ -329,7 +346,7 @@ class GalleryBehavior extends Behavior
 
     public function arrange($order)
     {
-        $orders = array();
+        $orders = [];
         $i = 0;
         foreach ($order as $k => $v) {
             if (!$v) {
@@ -340,7 +357,7 @@ class GalleryBehavior extends Behavior
         }
         sort($orders);
         $i = 0;
-        $res = array();
+        $res = [];
         foreach ($order as $k => $v) {
             $res[$k] = $orders[$i];
 
