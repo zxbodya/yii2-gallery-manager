@@ -21,7 +21,7 @@ class GalleryBehavior extends Behavior
 {
     /**
      * @var string Type name assigned to model in image attachment action
-     * @see GalleryManagerAction::$types
+     * @see     GalleryManagerAction::$types
      * @example $type = 'Post' where 'Post' is the model name
      */
     public $type;
@@ -94,13 +94,12 @@ class GalleryBehavior extends Behavior
      * @see GalleryManager::run
      */
     public $hasDescription = true;
-    protected $_galleryId;
 
     /**
-     * Table name of Gallery
-     * @var string
+     * @var string Table name for saving gallery images meta information
      */
-    protected $_galleryTable = '{{%gallery_image}}';
+    public $tableName = '{{%gallery_image}}';
+    protected $_galleryId;
 
     /**
      * @param ActiveRecord $owner
@@ -126,8 +125,8 @@ class GalleryBehavior extends Behavior
     {
         return [
             ActiveRecord::EVENT_BEFORE_DELETE => 'beforeDelete',
-            ActiveRecord::EVENT_AFTER_UPDATE  => 'afterUpdate',
-            ActiveRecord::EVENT_AFTER_FIND    => 'afterFind',
+            ActiveRecord::EVENT_AFTER_UPDATE => 'afterUpdate',
+            ActiveRecord::EVENT_AFTER_FIND => 'afterFind',
         ];
     }
 
@@ -168,7 +167,7 @@ class GalleryBehavior extends Behavior
 
             $imagesData = $query
                 ->select(['id', 'name', 'description', 'rank'])
-                ->from($this->_galleryTable)
+                ->from($this->tableName)
                 ->where(['type' => $this->type, 'ownerId' => $this->getGalleryId()])
                 ->orderBy(['rank' => 'asc'])
                 ->all();
@@ -184,10 +183,14 @@ class GalleryBehavior extends Behavior
 
     protected function getFileName($imageId, $version = 'original')
     {
-        $path[] = $this->getGalleryId();
-        $path[] = $imageId;
-        $path[] = $version . '.' . $this->extension;
-        return implode(DIRECTORY_SEPARATOR, $path);
+        return implode(
+            DIRECTORY_SEPARATOR,
+            [
+                $this->getGalleryId(),
+                $imageId,
+                $version . '.' . $this->extension,
+            ]
+        );
     }
 
     public function getUrl($imageId, $version = 'original')
@@ -265,7 +268,6 @@ class GalleryBehavior extends Behavior
         $parts = explode('/', $filePath);
         // skip file name
         $parts = array_slice($parts, 0, count($parts) - 1);
-        $i = 0;
         $targetPath = implode(DIRECTORY_SEPARATOR, $parts);
         $path = realpath($targetPath);
         if (!$path) {
@@ -289,7 +291,7 @@ class GalleryBehavior extends Behavior
         $db = \Yii::$app->db;
         $db->createCommand()
             ->delete(
-                $this->_galleryTable,
+                $this->tableName,
                 ['id' => $imageId]
             )->execute();
     }
@@ -315,9 +317,9 @@ class GalleryBehavior extends Behavior
         $db = \Yii::$app->db;
         $db->createCommand()
             ->insert(
-                $this->_galleryTable,
+                $this->tableName,
                 [
-                    'type'    => $this->type,
+                    'type' => $this->type,
                     'ownerId' => $this->getGalleryId()
                 ]
             )->execute();
@@ -325,7 +327,7 @@ class GalleryBehavior extends Behavior
         $id = $db->getLastInsertID();
         $db->createCommand()
             ->update(
-                $this->_galleryTable,
+                $this->tableName,
                 ['rank' => $id],
                 ['id' => $id]
             )->execute();
@@ -361,7 +363,7 @@ class GalleryBehavior extends Behavior
 
             \Yii::$app->db->createCommand()
                 ->update(
-                    $this->_galleryTable,
+                    $this->tableName,
                     ['rank' => $orders[$i]],
                     ['id' => $k]
                 )->execute();
@@ -392,7 +394,7 @@ class GalleryBehavior extends Behavior
         } else {
             $rawImages = (new Query())
                 ->select(['id', 'name', 'description', 'rank'])
-                ->from($this->_galleryTable)
+                ->from($this->tableName)
                 ->where(['type' => $this->type, 'ownerId' => $this->getGalleryId()])
                 ->andWhere(['in', 'id', $imageIds])
                 ->orderBy(['rank' => 'asc'])
@@ -412,7 +414,7 @@ class GalleryBehavior extends Behavior
             }
             \Yii::$app->db->createCommand()
                 ->update(
-                    $this->_galleryTable,
+                    $this->tableName,
                     ['name' => $image->name, 'description' => $image->description],
                     ['id' => $image->id]
                 )->execute();

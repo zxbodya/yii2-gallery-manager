@@ -45,6 +45,7 @@ class m150318_154933_gallery_ext
 
 }
 ```
+Or better - copy migration to you application.
 
 Add GalleryBehavior to your model, and configure it, create folder for uploaded files.
 
@@ -56,7 +57,7 @@ public function behaviors()
              'class' => GalleryBehavior::className(),
              'type' => 'product',
              'extension' => 'jpg',
-             'directory' => Yii::getAlias('@contentRoot') . '/images/product/gallery',
+             'directory' => Yii::getAlias('@webroot') . '/images/product/gallery',
              'url' => Yii::getAlias('@web') . '/images/product/gallery',
              'versions' => [
                  'small' => function ($img) {
@@ -92,7 +93,7 @@ public function actions()
        'galleryApi' => [
            'class' => GalleryManagerAction::className(),
            // mappings between type names and model classes (should be the same as in behaviour)
-           'types => [
+           'types' => [
                'product' => Product::className()
            ]
        ],
@@ -127,3 +128,9 @@ foreach($model->getBehavior('galleryBehavior')->getImages() as $image) {
 ```
 
 
+## Options 
+
+### Using non default table name for gallery images(default is `{{%gallery_image}}`):
+
+1. Add migration that will create table you need
+2. Change `tableName` property in behavior configuration

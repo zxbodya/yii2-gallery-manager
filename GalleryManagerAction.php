@@ -27,7 +27,7 @@ class GalleryManagerAction extends Action
      * $types to be defined at Controller::actions()
      * @var array Mapping between types and model class names
      * @example 'post'=>'common\models\Post'
-     * @see GalleryManagerAction::run
+     * @see     GalleryManagerAction::run
      */
     public $types = [];
 
@@ -91,8 +91,6 @@ class GalleryManagerAction extends Action
      * Method to handle file upload thought XHR2
      * On success returns JSON object with image info.
      *
-     * @param $gallery_id string Gallery Id to upload images
-     *
      * @return string
      * @throws HttpException
      */
@@ -121,7 +119,10 @@ class GalleryManagerAction extends Action
 
     /**
      * Saves images order according to request.
-     * Variable $_POST['order'] - new arrange of image ids, to be saved
+     *
+     * @param array $order new arrange of image ids, to be saved
+     *
+     * @return string
      * @throws HttpException
      */
     public function actionOrder($order)
