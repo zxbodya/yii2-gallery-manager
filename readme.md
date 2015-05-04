@@ -61,13 +61,13 @@ public function behaviors()
              'url' => Yii::getAlias('@web') . '/images/product/gallery',
              'versions' => [
                  'small' => function ($img) {
-                     /** @var ImageInterface $img */
+                     /** @var \Imagine\Image\ImageInterface $img */
                      return $img
                          ->copy()
-                         ->thumbnail(new Box(200, 200));
+                         ->thumbnail(new \Imagine\Image\Box(200, 200));
                  },
                  'medium' => function ($img) {
-                     /** @var ImageInterface $img */
+                     /** @var Imagine\Image\ImageInterface $img */
                      $dstSize = $img->getSize();
                      $maxWidth = 800;
                      if ($dstSize->getWidth() > $maxWidth) {
