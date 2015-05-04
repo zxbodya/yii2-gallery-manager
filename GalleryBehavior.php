@@ -184,7 +184,7 @@ class GalleryBehavior extends Behavior
     protected function getFileName($imageId, $version = 'original')
     {
         return implode(
-            DIRECTORY_SEPARATOR,
+            '/',
             [
                 $this->getGalleryId(),
                 $imageId,
@@ -268,7 +268,7 @@ class GalleryBehavior extends Behavior
         $parts = explode('/', $filePath);
         // skip file name
         $parts = array_slice($parts, 0, count($parts) - 1);
-        $targetPath = implode(DIRECTORY_SEPARATOR, $parts);
+        $targetPath = implode('/', $parts);
         $path = realpath($targetPath);
         if (!$path) {
             mkdir($targetPath, 0777, true);
