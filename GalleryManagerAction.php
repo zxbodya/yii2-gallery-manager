@@ -22,6 +22,11 @@ use yii\web\UploadedFile;
  */
 class GalleryManagerAction extends Action
 {
+    /**
+     * Glue used to implode composite primary keys
+     * @var string
+     */
+    public $pkGlue = '_';
 
     /**
      * $types to be defined at Controller::actions()
@@ -47,8 +52,12 @@ class GalleryManagerAction extends Action
         $this->type = Yii::$app->request->get('type');
         $this->behaviorName = Yii::$app->request->get('behaviorName');
         $this->galleryId = Yii::$app->request->get('galleryId');
+        $pkNames = call_user_func([$this->types[$this->type], 'primaryKey']);
+        $pkValues = explode($this->pkGlue, $this->galleryId);
 
-        $this->owner = call_user_func([$this->types[$this->type], 'findOne'], $this->galleryId);
+        $pk = array_combine($pkNames, $pkValues);
+
+        $this->owner = call_user_func([$this->types[$this->type], 'findOne'], $pk);
         $this->behavior = $this->owner->getBehavior($this->behaviorName);
 
         switch ($action) {

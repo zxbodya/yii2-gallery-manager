@@ -20,6 +20,11 @@ use yii\imagine\Image;
 class GalleryBehavior extends Behavior
 {
     /**
+     * Glue used to implode composite primary keys
+     * @var string
+     */
+    public $pkGlue = '_';
+    /**
      * @var string Type name assigned to model in image attachment action
      * @see     GalleryManagerAction::$types
      * @example $type = 'Post' where 'Post' is the model name
@@ -256,7 +261,7 @@ class GalleryBehavior extends Behavior
     {
         $pk = $this->owner->getPrimaryKey();
         if (is_array($pk)) {
-            throw new Exception('Composite pk not supported');
+            return implode($this->pkGlue, $pk);
         } else {
             return $pk;
         }
