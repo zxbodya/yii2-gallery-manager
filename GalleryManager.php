@@ -73,7 +73,7 @@ class GalleryManager extends Widget
             $this->apiRoute,
             'type' => $this->behavior->type,
             'behaviorName' => $this->behaviorName,
-            'galleryId' => $this->model->getPrimaryKey()
+            'galleryId' => $this->behavior->getGalleryId()
         ];
 
         $opts = array(
