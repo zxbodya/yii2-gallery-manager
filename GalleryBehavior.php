@@ -237,10 +237,17 @@ class GalleryBehavior extends Behavior
 
         //create image preview for gallery manager
         foreach ($this->versions as $version => $fn) {
-            /** @var Image $image */
+            /** @var ImageInterface $image */
 
-            call_user_func($fn, $originalImage)
-                ->save($this->getFilePath($imageId, $version));
+            $image = call_user_func($fn, $originalImage);
+            if (is_array($image)) {
+                list($image, $options) = $image;
+            } else {
+                $options = [];
+            }
+
+            $image
+                ->save($this->getFilePath($imageId, $version), $options);
         }
     }
 
