@@ -336,7 +336,7 @@ class GalleryBehavior extends Behavior
                 ]
             )->execute();
 
-        $id = $db->getLastInsertID();
+        $id = $db->getLastInsertID('gallery_image_id_seq');
         $db->createCommand()
             ->update(
                 $this->tableName,
