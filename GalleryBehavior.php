@@ -434,4 +434,49 @@ class GalleryBehavior extends Behavior
 
         return $imagesToUpdate;
     }
+
+    /**
+     * Regenerate image versions
+     * Should be called in migration on every model after changes in versions configuration
+     *
+     * @param string|null $oldExtension
+     */
+    public function updateImages($oldExtension = null)
+    {
+        $ids = array_map(function ($image) {
+            /** @var GalleryImage $image */
+            return $image->id;
+        }, $this->getImages());
+
+        foreach ($ids as $id) {
+            if ($oldExtension !== null) {
+                $newExtension = $this->extension;
+                $this->extension = $oldExtension;
+                $originalImage = Image::getImagine()
+                    ->open($this->getFilePath($id, 'original'));
+                foreach ($this->versions as $version => $fn) {
+                    $this->removeFile($this->getFilePath($id, $version));
+                }
+                $this->extension = $newExtension;
+                $originalImage->save($this->getFilePath($id, 'original'));
+            } else {
+                $originalImage = Image::getImagine()
+                    ->open($this->getFilePath($id, 'original'));
+            }
+
+            foreach ($this->versions as $version => $fn) {
+                if ($version !== 'original') {
+                    $this->removeFile($this->getFilePath($id, $version));
+                    /** @var ImageInterface $image */
+                    $image = call_user_func($fn, $originalImage);
+                    if (is_array($image)) {
+                        list($image, $options) = $image;
+                    } else {
+                        $options = [];
+                    }
+                    $image->save($this->getFilePath($id, $version), $options);
+                }
+            }
+        }
+    }
 }
