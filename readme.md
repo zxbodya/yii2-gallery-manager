@@ -4,7 +4,13 @@ Yii2 port of https://github.com/zxbodya/yii-gallery-manager
 
 (frontend part mostly without changes, but backend was rewritten almost completely)
 
-**warning: preview version**
+Gallery manager screenshots (yii 1.x version, new one has bootstrap 3 styles):
+
+![GalleryManager images list](http://zxbodya.cc.ua/scrup/ci/eh1n1th6o0c80.png "Gallery Manager Screenshot")
+
+Few more screenshots:
+[drag & drop upload](http://zxbodya.cc.ua/scrup/6w/64q4icig84oo0.png "Drag & Drop image upload"), [editing image information](http://zxbodya.cc.ua/scrup/za/gfc68h5b4gksg.png "Edit image information"), [upload progress](http://zxbodya.cc.ua/scrup/8v/tijrezh7oksk8.png "upload progress"), 
+
 
 ## Features
 
