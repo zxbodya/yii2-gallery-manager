@@ -51,7 +51,7 @@ class m150318_154933_gallery_ext
 
 }
 ```
-Or better - copy migration to you application.
+Or better - copy migration to you application(but be sure to **remove namespace from it** - it should be in global namespace)
 
 Add GalleryBehavior to your model, and configure it, create folder for uploaded files.
 
