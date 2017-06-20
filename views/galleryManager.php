@@ -15,7 +15,7 @@ use yii\web\View;
         <div class="btn-group" style="display: inline-block;">
             <div class="btn btn-success btn-file" style="display: inline-block">
                 <i class="glyphicon glyphicon-plus"></i><?php echo Yii::t('galleryManager/main', 'Add…'); ?>
-                <input type="file" name="image" class="afile" accept="image/*" multiple="multiple"/>
+                <input type="file" name="gallery-image" class="afile" accept="image/*" multiple="multiple"/>
             </div>
         </div>
         <div class="btn-group" style="display: inline-block;">
