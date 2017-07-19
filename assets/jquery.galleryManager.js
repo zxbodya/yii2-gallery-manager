@@ -52,7 +52,7 @@
         .replace(/>/g, '&gt;');
     }
 
-    function createEditorElement(id, src, name, description) {
+    function createEditorElement(id, src, name, description, disable) {
 
       var html = '<div class="photo-editor row">' +
         '<div class="col-xs-4">' +
@@ -71,11 +71,20 @@
           ?
         '<div class="form-group">' +
         '<label class="control-label" for="photo_description_' + id + '">' + opts.descriptionLabel + ':</label>' +
-        '<textarea class="form-control" name="photo[' + id + '][description]" rows="3" cols="40" class="input-xlarge" id="photo_description_' + id + '">' + htmlEscape(description) + '</textarea>' +
+        '<select class="form-control" name="photo[' + id + '][description]" class="input-xlarge" id="photo_description_' + id + '">' +
+          '<option value="0" '+(description=='Не выгружать' ? 'selected' : '')+'>Не выгружать</option>' +
+          '<option value="2" '+(description=='Главная' ? 'selected' : '')+'>Главная</option>' +
+          '<option value="8" '+(description=='Фото' ? 'selected' : '')+'>Фото</option>' +
+          '<option value="10" '+(description=='Вид' ? 'selected' : '')+'>Вид</option>' +
+          '<option value="9" '+(description=='Планировка' ? 'selected' : '')+'>Планировка</option>' +
+        '</select>' +
         '</div>' : '') +
+
+        '<label><input type="checkbox" name="photo[' + id + '][disable]"'+ (disable==1 ? 'checked' : '') +' value="1"/> Не выгружать</label>' +
 
         '</div>' +
         '</div>';
+      console.log(disable, opts.photos);
       return $(html);
     }
 
@@ -86,7 +95,7 @@
     if (opts.hasDesc) {
       photoTemplate += '<p></p>';
     }
-    photoTemplate += '</div><div class="actions">';
+    photoTemplate += '<span></span></div><div class="actions">';
 
     if (opts.hasName || opts.hasDesc) {
       photoTemplate += '<span class="editPhoto btn btn-primary btn-xs"><i class="glyphicon glyphicon-pencil glyphicon-white"></i></span> ';
@@ -95,8 +104,15 @@
     photoTemplate += '<span class="deletePhoto btn btn-danger btn-xs"><i class="glyphicon glyphicon-remove glyphicon-white"></i></span>' +
     '</div><input type="checkbox" class="photo-select"/></div>';
 
+    var typeMap = {
+      0 : 'Не выгружать',
+      2 : 'Главная',
+      8 : 'Фото',
+      10 : 'Вид',
+      9 : 'Планировка',
+    }
 
-    function addPhoto(id, src, name, description, rank) {
+    function addPhoto(id, src, name, description, rank, disable) {
       var photo = $(photoTemplate);
       photos[id] = photo;
       photo.data('id', id);
@@ -107,8 +123,9 @@
         $('.caption h5', photo).text(name);
       }
       if (opts.hasDesc){
-        $('.caption p', photo).text(description);
+        $('.caption p', photo).text(typeMap[description]);
       }
+      $('.caption span', photo).text(disable);
 
       $images.append(photo);
       return photo;
@@ -123,8 +140,9 @@
         var photo = photos[id],
           src = $('img', photo).attr('src'),
           name = $('.caption h5', photo).text(),
-          description = $('.caption p', photo).text();
-        form.append(createEditorElement(id, src, name, description));
+          description = $('.caption p', photo).text(),
+          disable = $('.caption span', photo).text();
+        form.append(createEditorElement(id, src, name, description, disable));
       }
       if (l > 0){
         $editorModal.modal('show');
@@ -236,7 +254,7 @@
             uploadedCount++;
             if (this.status == 200) {
               var resp = JSON.parse(this.response);
-              addPhoto(resp['id'], resp['preview'], resp['name'], resp['description'], resp['rank']);
+              addPhoto(resp['id'], resp['preview'], resp['name'], resp['description'], resp['rank'], resp['disable']);
               ids.push(resp['id']);
             } else {
               // exception !!!
@@ -304,7 +322,6 @@
       $('.afile', $gallery).attr('multiple', 'true').on('change', function (e) {
         e.preventDefault();
         multiUpload(this.files);
-        $(this).val(null);
       });
     } else {
       $('.afile', $gallery).on('change', function (e) {
@@ -325,7 +342,7 @@
           processData: false,
           dataType: "json"
         }).done(function (resp) {
-          addPhoto(resp['id'], resp['preview'], resp['name'], resp['description'], resp['rank']);
+          addPhoto(resp['id'], resp['preview'], resp['name'], resp['description'], resp['rank'], resp['disable']);
           ids.push(resp['id']);
           $uploadProgress.css('width', '100%');
           $progressOverlay.hide();
@@ -336,7 +353,7 @@
 
     $('.save-changes', $editorModal).click(function (e) {
       e.preventDefault();
-      $.post(opts.updateUrl, $('input, textarea', $editorForm).serialize() + csrfParams, function (data) {
+      $.post(opts.updateUrl, $('input, textarea, select', $editorForm).serialize() + csrfParams, function (data) {
         var count = data.length;
         for (var key = 0; key < count; key++) {
           var p = data[key];
@@ -345,7 +362,8 @@
           if (opts.hasName)
             $('.caption h5', photo).text(p['name']);
           if (opts.hasDesc)
-            $('.caption p', photo).text(p['description']);
+            $('.caption p', photo).text(typeMap[p['description']]);
+          $('.caption span', photo).text(p['disable']);
         }
         $editorModal.modal('hide');
         //deselect all items after editing
@@ -393,7 +411,7 @@
 
     for (var i = 0, l = opts.photos.length; i < l; i++) {
       var resp = opts.photos[i];
-      addPhoto(resp['id'], resp['preview'], resp['name'], resp['description'], resp['rank']);
+      addPhoto(resp['id'], resp['preview'], resp['name'], resp['description'], resp['rank'], resp['disable']);
     }
   }
 

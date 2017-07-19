@@ -171,7 +171,7 @@ class GalleryBehavior extends Behavior
             $query = new \yii\db\Query();
 
             $imagesData = $query
-                ->select(['id', 'name', 'description', 'rank'])
+                ->select(['id', 'name', 'description', 'rank', 'disable'])
                 ->from($this->tableName)
                 ->where(['type' => $this->type, 'ownerId' => $this->getGalleryId()])
                 ->orderBy(['rank' => 'asc'])
@@ -334,6 +334,7 @@ class GalleryBehavior extends Behavior
                     'type' => $this->type,
                     'ownerId' => $this->getGalleryId()
                 ]
+	            // ToDo еще не обработано новое поле disable
             )->execute();
 
         $id = $db->getLastInsertID('gallery_image_id_seq');
@@ -405,7 +406,7 @@ class GalleryBehavior extends Behavior
             }
         } else {
             $rawImages = (new Query())
-                ->select(['id', 'name', 'description', 'rank'])
+                ->select(['id', 'name', 'description', 'rank', 'disable'])
                 ->from($this->tableName)
                 ->where(['type' => $this->type, 'ownerId' => $this->getGalleryId()])
                 ->andWhere(['in', 'id', $imageIds])
@@ -424,10 +425,11 @@ class GalleryBehavior extends Behavior
             if (isset($imagesData[$image->id]['description'])) {
                 $image->description = $imagesData[$image->id]['description'];
             }
+            $image->disable = isset($imagesData[$image->id]['disable']) ? 1 : 0;
             \Yii::$app->db->createCommand()
                 ->update(
                     $this->tableName,
-                    ['name' => $image->name, 'description' => $image->description],
+                    ['name' => $image->name, 'description' => $image->description, 'disable' => $image->disable],
                     ['id' => $image->id]
                 )->execute();
         }

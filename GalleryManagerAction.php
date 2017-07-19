@@ -167,6 +167,7 @@ class GalleryManagerAction extends Action
                 'rank' => $model->rank,
                 'name' => (string)$model->name,
                 'description' => (string)$model->description,
+                'disable' => $model->disable,
                 'preview' => $model->getUrl('preview'),
             );
         }

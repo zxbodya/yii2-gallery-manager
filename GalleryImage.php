@@ -8,6 +8,7 @@ class GalleryImage
     public $description;
     public $id;
     public $rank;
+    public $disable;
     /**
      * @var GalleryBehavior
      */
@@ -26,6 +27,7 @@ class GalleryImage
         $this->description = isset($props['description']) ? $props['description'] : '';
         $this->id = isset($props['id']) ? $props['id'] : '';
         $this->rank = isset($props['rank']) ? $props['rank'] : '';
+        $this->disable = isset($props['disable']) ? $props['disable'] : '';
     }
 
     /**

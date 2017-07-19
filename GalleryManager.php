@@ -65,6 +65,7 @@ class GalleryManager extends Widget
                 'rank' => $image->rank,
                 'name' => (string)$image->name,
                 'description' => (string)$image->description,
+                'disable' => $image->disable,
                 'preview' => $image->getUrl('preview'),
             );
         }

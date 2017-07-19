@@ -1,1 +1,4 @@
 /.sass-cache
+.idea/
+composer.lock
+vendor/
