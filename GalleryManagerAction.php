@@ -1,6 +1,6 @@
 <?php
 
-namespace zxbodya\yii2\galleryManager;
+namespace mixartemev\yii2\galleryManager;
 
 
 use Yii;

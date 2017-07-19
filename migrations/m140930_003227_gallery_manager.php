@@ -1,5 +1,5 @@
 <?php
-namespace zxbodya\yii2\galleryManager\migrations;
+namespace mixartemev\yii2\galleryManager\migrations;
 
 use yii\db\Schema;
 use yii\db\Migration;

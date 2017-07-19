@@ -1,6 +1,6 @@
 <?php
 
-namespace zxbodya\yii2\galleryManager;
+namespace mixartemev\yii2\galleryManager;
 
 use Yii;
 use yii\base\Exception;
@@ -45,7 +45,7 @@ class GalleryManager extends Widget
         $i18n->translations['galleryManager/*'] = [
             'class' => 'yii\i18n\PhpMessageSource',
             'sourceLanguage' => 'en-US',
-            'basePath' => '@zxbodya/yii2/galleryManager/messages',
+            'basePath' => '@mixartemev/yii2/galleryManager/messages',
             'fileMap' => [],
         ];
     }
