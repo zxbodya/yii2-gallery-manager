@@ -14,7 +14,7 @@
     float: left;
     background-color: #fff;
     margin: 4px;
-    height: 178px;
+    height: 170px;
     width: 140px;
     display: block;
     padding: 4px;
@@ -55,15 +55,20 @@
     background: white;
     cursor: inherit;
     display: block; }
+  .gallery-manager .caption p {
+    font-size: 13px;
+    margin: 4px 0; }
   .gallery-manager .caption h5 {
     margin: 0;
-    font-size: 13px;
-    white-space: nowrap;
-    overflow: hidden; }
-  .gallery-manager .caption p {
-    height: 3em;
-    overflow: hidden;
-    font-size: 13px; }
+    font-size: 11px;
+    font-weight: bold; }
+  .gallery-manager .caption span {
+    position: absolute;
+    margin: 7px 0 0 4px; }
+    .gallery-manager .caption span.glyphicon-ok-circle {
+      color: green; }
+    .gallery-manager .caption span.glyphicon-ban-circle {
+      color: red; }
   .gallery-manager.no-desc .photo {
     height: 138px; }
   .gallery-manager.no-name .photo {
