@@ -55,10 +55,10 @@
         function createEditorElement(id, src, name, description, disable) {
 
             var html = '<div class="photo-editor row">' +
-                '<div class="col-xs-4">' +
+                '<div class="col-xs-6">' +
                 '<img src="' + htmlEscape(src) + '"  style="max-width:100%;">' +
                 '</div>' +
-                '<div class="col-xs-8">' +
+                '<div class="col-xs-6">' +
 
                 (opts.hasName
                     ?
@@ -104,7 +104,6 @@
             '</div><input type="checkbox" class="photo-select"/></div>';
 
         var typeMap = {
-            0 : 'Не выгружать',
             2 : 'Главная',
             8 : 'Фото',
             10 : 'Вид',
