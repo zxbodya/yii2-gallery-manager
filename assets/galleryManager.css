@@ -64,7 +64,8 @@
     font-weight: bold; }
   .gallery-manager .caption span {
     position: absolute;
-    margin: 7px 0 0 4px; }
+    margin: 7px 0 0 4px;
+    font-size: 18px; }
     .gallery-manager .caption span.glyphicon-ok-circle {
       color: green; }
     .gallery-manager .caption span.glyphicon-ban-circle {
