@@ -117,13 +117,13 @@ class GalleryBehavior extends Behavior
                 return $image;
             };
         }
-        if (!isset($this->versions['preview'])) {
-            $this->versions['preview'] = function ($originalImage) {
-                /** @var ImageInterface $originalImage */
-                return $originalImage
-                    ->thumbnail(new Box($this->previewWidth, $this->previewHeight));
-            };
-        }
+//        if (!isset($this->versions['preview'])) {
+//            $this->versions['preview'] = function ($originalImage) {
+//                /** @var ImageInterface $originalImage */
+//                return $originalImage
+//                    ->thumbnail(new Box($this->previewWidth, $this->previewHeight));
+//            };
+//        }
     }
 
     public function events()

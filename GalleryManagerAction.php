@@ -121,7 +121,7 @@ class GalleryManagerAction extends Action
                 'rank' => $image->rank,
                 'name' => (string)$image->name,
                 'description' => (string)$image->description,
-                'preview' => $image->getUrl('preview'),
+                'preview' => $image->getUrl('bc_prv'),
             )
         );
     }
@@ -168,7 +168,7 @@ class GalleryManagerAction extends Action
                 'name' => (string)$model->name,
                 'description' => (string)$model->description,
                 'disable' => $model->disable,
-                'preview' => $model->getUrl('preview'),
+                'preview' => $model->getUrl('bc_prv'),
             );
         }
 
