@@ -156,7 +156,9 @@ class GalleryBehavior extends Behavior
         if ($this->_galleryId != $galleryId) {
             $dirPath1 = $this->directory . '/' . $this->_galleryId;
             $dirPath2 = $this->directory . '/' . $galleryId;
-            rename($dirPath1, $dirPath2);
+	        if($this->_galleryId){
+		        rename($dirPath1, $dirPath2);
+	        }
         }
     }
 
@@ -185,6 +187,27 @@ class GalleryBehavior extends Behavior
 
         return $this->_images;
     }
+
+	/**
+	 * @return GalleryImage
+	 */
+	public function getPrv()
+	{
+		if ($this->_images === null) {
+			$query = new \yii\db\Query();
+
+			$imageData = $query
+				->select(['id', 'name', 'description', 'rank', 'disable'])
+				->from($this->tableName)
+				->where(['type' => $this->type, 'ownerId' => $this->getGalleryId()])
+				->orderBy(['rank' => 'asc'])
+				->one();
+
+			return new GalleryImage($this, $imageData);
+		}
+
+		return $this->_images[0];
+	}
 
     protected function getFileName($imageId, $version = 'original')
     {
