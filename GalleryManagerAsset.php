@@ -21,5 +21,4 @@ class GalleryManagerAsset extends AssetBundle
         'yii\web\JqueryAsset',
         'yii\jui\JuiAsset'
     ];
-
 }

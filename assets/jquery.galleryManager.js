@@ -16,7 +16,9 @@
         updateUrl: '',
         arrangeUrl: '',
 
-        photos: []
+        photos: [],
+
+        editable: true
     };
 
     function galleryManager(el, options) {
@@ -94,14 +96,16 @@
         if (opts.hasName) {
             photoTemplate += '<h5></h5>';
         }
-        photoTemplate += '<span></span></div><div class="actions">';
+        photoTemplate += '<span></span></div>';
 
-        if (opts.hasName || opts.hasDesc) {
-            photoTemplate += '<span class="editPhoto btn btn-primary btn-xs"><i class="glyphicon glyphicon-pencil glyphicon-white"></i></span> ';
+        if(options.editable){
+            photoTemplate += '<div class="actions">';
+            if (opts.hasName || opts.hasDesc) {
+                photoTemplate += '<span class="editPhoto btn btn-primary btn-xs"><i class="glyphicon glyphicon-pencil glyphicon-white"></i></span> ';
+            }
+            photoTemplate += '<span class="deletePhoto btn btn-danger btn-xs"><i class="glyphicon glyphicon-remove glyphicon-white"></i></span>' +
+                '</div><input type="checkbox" class="photo-select"/></div>';
         }
-
-        photoTemplate += '<span class="deletePhoto btn btn-danger btn-xs"><i class="glyphicon glyphicon-remove glyphicon-white"></i></span>' +
-            '</div><input type="checkbox" class="photo-select"/></div>';
 
         var typeMap = {
             2 : 'Главная',
@@ -214,25 +218,27 @@
             .on('click', '.photo .photo-select', selectChanged);
 
 
-        $('.images', $sorter).sortable({tolerance: "pointer"}).disableSelection().bind("sortstop", function () {
-            var data = [];
-            $('.photo', $sorter).each(function () {
-                var t = $(this);
-                data.push('order[' + t.data('id') + ']=' + t.data('rank'));
+        if(options.editable){
+            $('.images', $sorter).sortable({tolerance: "pointer"}).disableSelection().bind("sortstop", function () {
+                var data = [];
+                $('.photo', $sorter).each(function () {
+                    var t = $(this);
+                    data.push('order[' + t.data('id') + ']=' + t.data('rank'));
+                });
+                $.ajax({
+                    type: 'POST',
+                    url: opts.arrangeUrl,
+                    data: data.join('&') + csrfParams,
+                    dataType: "json"
+                }).done(function (data) {
+                    for (var id in data[id]) {
+                        photos[id].data('rank', data[id]);
+                    }
+                    // order saved!
+                    // we can inform user that order saved
+                });
             });
-            $.ajax({
-                type: 'POST',
-                url: opts.arrangeUrl,
-                data: data.join('&') + csrfParams,
-                dataType: "json"
-            }).done(function (data) {
-                for (var id in data[id]) {
-                    photos[id].data('rank', data[id]);
-                }
-                // order saved!
-                // we can inform user that order saved
-            });
-        });
+        }
 
         if (window.FormData !== undefined) { // if XHR2 available
             var uploadFileName = $('.afile', $gallery).attr('name');

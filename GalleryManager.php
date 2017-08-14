@@ -88,6 +88,9 @@ class GalleryManager extends Widget
             'descriptionLabel' => Yii::t('galleryManager/main', 'Description'),
             'photos' => $images,
         );
+        if(array_key_exists('disabled', $this->options)){
+	        $opts['editable'] = !$this->options['disabled'];
+        }
 
         $opts = Json::encode($opts);
         $view = $this->getView();
