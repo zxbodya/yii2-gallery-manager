@@ -203,10 +203,10 @@ class GalleryBehavior extends Behavior
 				->orderBy(['rank' => 'asc'])
 				->one();
 
-			return new GalleryImage($this, $imageData);
+			return (new GalleryImage($this, $imageData))->getUrl('bc_prv');
 		}
 
-		return $this->_images[0];
+		return $this->_images[0]->getUrl('bc_prv');
 	}
 
     protected function getFileName($imageId, $version = 'original')
