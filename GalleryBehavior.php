@@ -189,7 +189,7 @@ class GalleryBehavior extends Behavior
     }
 
 	/**
-	 * @return GalleryImage
+	 * @return string|bool
 	 */
 	public function getPrv()
 	{
@@ -202,8 +202,12 @@ class GalleryBehavior extends Behavior
 				->where(['type' => $this->type, 'ownerId' => $this->getGalleryId()])
 				->orderBy(['rank' => 'asc'])
 				->one();
+			if($imageData){
+				return (new GalleryImage($this, $imageData))->getUrl('bc_prv');
+			}else{
+				return false;
+			}
 
-			return (new GalleryImage($this, $imageData))->getUrl('bc_prv');
 		}
 
 		return $this->_images[0]->getUrl('bc_prv');
