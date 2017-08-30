@@ -194,16 +194,19 @@ class GalleryBehavior extends Behavior
 	public function getPrv()
 	{
 		if ($this->_images === null) {
-			$query = new \yii\db\Query();
 
-			$imageData = $query
-				->select(['id', 'name', 'description', 'rank', 'disable'])
-				->from($this->tableName)
-				->where(['type' => $this->type, 'ownerId' => $this->getGalleryId()])
-				->orderBy(['rank' => 'asc'])
-				->one();
-
-			return (new GalleryImage($this, $imageData))->getUrl('bc_prv');
+			$imageData = $this->owner->gi_id
+				? ['id' => $this->owner->gi_id]
+				: (new \yii\db\Query)
+					->select(['id', 'name'])
+					->from($this->tableName)
+					->where(['type' => $this->type, 'ownerId' => $this->getGalleryId()])
+					->one();
+			if($imageData){
+				return (new GalleryImage($this, $imageData))->getUrl('bc_prv');
+			}else{
+				return false;
+			}
 		}
 
 		return $this->_images[0]->getUrl('bc_prv');
