@@ -20,7 +20,7 @@ class m140930_003227_gallery_manager extends Migration
                 'rank' => Schema::TYPE_INTEGER . ' NOT NULL DEFAULT 0',
                 'name' => Schema::TYPE_STRING,
                 'description' => Schema::TYPE_SMALLINT,
-                'disable' => Schema::TYPE_BOOLEAN . ' DEFAULT VALUE 0',
+                'disable' => Schema::TYPE_BOOLEAN . ' DEFAULT 0',
             )
         );
     }
