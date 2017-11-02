@@ -10,7 +10,6 @@ class m140930_003227_gallery_manager extends Migration
 
     public function up()
     {
-
         $this->createTable(
             $this->tableName,
             array(
@@ -23,10 +22,23 @@ class m140930_003227_gallery_manager extends Migration
                 'disable' => Schema::TYPE_BOOLEAN . ' DEFAULT 0',
             )
         );
+
+        // creates index for column `tower_id`
+        $this->createIndex(
+            'idx-gallery_image-ownerId',
+            'gallery_image',
+            'ownerId'
+        );
     }
 
     public function down()
     {
+        // drops foreign key for table `tower`
+        $this->dropForeignKey(
+            'idx-gallery_image-ownerId',
+            'gallery_image'
+        );
+
         $this->dropTable($this->tableName);
     }
 }
