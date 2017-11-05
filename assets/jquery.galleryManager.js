@@ -75,7 +75,7 @@
                     '<label class="control-label" for="photo_description_' + id + '">' + opts.descriptionLabel + ':</label>' +
                     '<select class="form-control" name="photo[' + id + '][description]" class="input-xlarge" id="photo_description_' + id + '">' +
                     //'<option value="0" '+(description=='Не выгружать' ? 'selected' : '')+'>Не выгружать</option>' +
-                    '<option value="2" '+(description=='Главная' ? 'selected' : '')+'>Главная</option>' +
+                    //'<option value="2" '+(description=='Главная' ? 'selected' : '')+'>Главная</option>' +
                     '<option value="8" '+(description=='Фото' ? 'selected' : '')+'>Фото</option>' +
                     '<option value="10" '+(description=='Вид' ? 'selected' : '')+'>Вид</option>' +
                     '<option value="9" '+(description=='Планировка' ? 'selected' : '')+'>Планировка</option>' +
