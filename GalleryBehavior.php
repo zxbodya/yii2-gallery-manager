@@ -173,7 +173,7 @@ class GalleryBehavior extends Behavior
             $query = new \yii\db\Query();
 
             $imagesData = $query
-                ->select(['id', 'name', 'description', 'rank', 'disable'])
+                ->select(['id', 'name', 'type', 'description', 'rank', 'disable'])
                 ->from($this->tableName)
                 ->where(['type' => $this->type, 'ownerId' => $this->getGalleryId()])
                 ->orderBy(['rank' => 'asc'])
