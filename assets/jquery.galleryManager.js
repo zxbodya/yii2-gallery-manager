@@ -18,7 +18,21 @@
 
         photos: [],
 
-        editable: true
+        editable: true,
+
+        /* callbacks */
+
+        beforeAdd: '',
+        afterAdd: '',
+        beforeEdit: '',
+        afterEdit: '',
+        beforeRemove: '',
+        afterRemove: '',
+        beforeUpload: '',
+        afterUpload: '',
+
+        sortStop: '',
+
     };
 
     function galleryManager(el, options) {
@@ -120,6 +134,11 @@
         ];
 
         function addPhoto(id, src, name, description, rank, disable) {
+
+            /* before add callback */
+            eval(opts.beforeAdd);
+            /* before add callback */
+
             var photo = $(photoTemplate);
             photos[id] = photo;
             photo.data('id', id);
@@ -135,10 +154,20 @@
             $('.caption span', photo).attr('class', disableMap[disable]);
 
             $images.append(photo);
+
+            /* after add callback */
+            eval(opts.afterAdd);
+            /* after add callback */
+
             return photo;
         }
 
         function editPhotos(ids) {
+
+            /* before edit callback */
+            eval(opts.beforeEdit);
+            /* before edit callback */
+
             var l = ids.length;
             var form = $editorForm.empty();
             for (var i = 0; i < l; i++) {
@@ -154,9 +183,19 @@
             if (l > 0){
                 $editorModal.modal('show');
             }
+
+            /* after edit callback */
+            eval(opts.afterEdit);
+            /* after edit callback */
+
         }
 
         function removePhotos(ids) {
+
+            /* before remove callback */
+            eval(opts.beforeRemove);
+            /* before remove callback */
+
             $.ajax({
                 type: 'POST',
                 url: opts.deleteUrl,
@@ -172,8 +211,11 @@
                     }
                 }
             });
-        }
 
+            /* after remove callback */
+            eval(opts.afterRemove);
+            /* after remove callback */
+        }
 
         function deleteClick(e) {
             e.preventDefault();
@@ -234,6 +276,7 @@
                     for (var id in data[id]) {
                         photos[id].data('rank', data[id]);
                     }
+                    eval(opts.sortStop);
                     // order saved!
                     // we can inform user that order saved
                 });
@@ -245,6 +288,11 @@
 
             var multiUpload = function (files) {
                 if (files.length == 0) return;
+
+                /* before upload callback */
+                eval(opts.beforeUpload);
+                /* before upload callback */
+
                 $progressOverlay.show();
                 $uploadProgress.css('width', '5%');
                 var filesCount = files.length;
@@ -278,6 +326,10 @@
                     };
                     xhr.send(fd);
                 }
+
+                /* after upload callback */
+                eval(opts.afterUpload);
+                /* after upload callback */
 
             };
 
