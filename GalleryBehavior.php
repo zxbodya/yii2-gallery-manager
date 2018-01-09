@@ -203,13 +203,13 @@ class GalleryBehavior extends Behavior
 					->where(['type' => $this->type, 'ownerId' => $this->getGalleryId()])
 					->one();
 			if($imageData){
-				return (new GalleryImage($this, $imageData))->getUrl('bc_prv');
+				return (new GalleryImage($this, $imageData))->getUrl('bc');
 			}else{
 				return false;
 			}
 		}
 
-		return $this->_images[0]->getUrl('bc_prv');
+		return $this->_images[0]->getUrl('bc');
 	}
 
     protected function getFileName($imageId, $version = 'original')
