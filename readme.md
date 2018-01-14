@@ -51,6 +51,12 @@ class m150318_154933_gallery_ext
 
 }
 ```
+
+or run:
+```shell
+./yii migrate --migrationPath=@vendor/mixartemev/yii2/galleryManager/migrations/
+```
+
 Or better - copy migration to you application(but be sure to **remove namespace from it** - it should be in global namespace)
 
 Add GalleryBehavior to your model, and configure it, create folder for uploaded files.
