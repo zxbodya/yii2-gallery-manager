@@ -226,6 +226,7 @@
                     if (t.find('.caption p').length && t.find('.caption p').text().length) {
                         data.push('order[' + t.data('id') + ']=' + t.data('rank'));
                     } else {
+                        $(this).sortable('cancel');
                         return false;
                     }
                 });
