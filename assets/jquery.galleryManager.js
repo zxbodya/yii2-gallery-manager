@@ -265,7 +265,12 @@
                 var data = [];
                 $('.photo', $sorter).each(function () {
                     var t = $(this);
-                    data.push('order[' + t.data('id') + ']=' + t.data('rank'));
+                    if (t.find('.caption p').length && t.find('.caption p').text().length) {
+                        data.push('order[' + t.data('id') + ']=' + t.data('rank'));
+                    } else {
+                        $(this).sortable('cancel');
+                        return false;
+                    }
                 });
                 $.ajax({
                     type: 'POST',
@@ -276,7 +281,6 @@
                     for (var id in data[id]) {
                         photos[id].data('rank', data[id]);
                     }
-                    eval(opts.sortStop);
                     // order saved!
                     // we can inform user that order saved
                 });
