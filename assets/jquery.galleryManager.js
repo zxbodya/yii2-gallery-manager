@@ -199,6 +199,7 @@
             $.ajax({
                 type: 'POST',
                 url: opts.deleteUrl,
+                async: true,
                 data: 'id[]=' + ids.join('&id[]=') + csrfParams,
                 success: function (t) {
                     if (t == 'OK') {
@@ -284,6 +285,9 @@
                     // order saved!
                     // we can inform user that order saved
                 });
+                /* after remove callback */
+                eval(opts.sortStop);
+                /* after remove callback */
             });
         }
 
@@ -329,11 +333,16 @@
                         }
                     };
                     xhr.send(fd);
+                    xhr.onreadystatechange = function() {
+                        if (xhr.readyState != 4) return;
+                        if (xhr.status == 200) {
+                            /* after upload callback */
+                            eval(opts.afterUpload);
+                            /* after upload callback */
+                            console.log('afterUpload trigger');
+                        }
+                    }
                 }
-
-                /* after upload callback */
-                eval(opts.afterUpload);
-                /* after upload callback */
 
             };
 
