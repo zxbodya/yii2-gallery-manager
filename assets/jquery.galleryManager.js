@@ -269,8 +269,8 @@
 					if (!t.find('.glyphicon-ban-circle').length) {
 						data.push('order[' + t.data('id') + ']=' + t.data('rank'));
 					} else {
-						$(this).sortable('cancel');
-						return false;
+						//$(this).sortable('cancel');
+						return;
 					}
 				});
 				$.ajax({
