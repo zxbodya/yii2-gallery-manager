@@ -66,7 +66,7 @@ class GalleryManager extends Widget
                 'name' => (string)$image->name,
                 'description' => (string)$image->description,
                 'disable' => $image->disable,
-                'preview' => $image->getUrl('bc'),
+                'preview' => $image->getUrl('original'),
             );
         }
 
