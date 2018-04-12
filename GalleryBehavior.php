@@ -203,7 +203,7 @@ class GalleryBehavior extends Behavior
 					->where(['type' => $this->type, 'ownerId' => $this->getGalleryId()])
 					->one();
 			if($imageData){
-				return (new GalleryImage($this, $imageData))->getUrl('bc');
+				return (new GalleryImage($this, $imageData))->getUrl('original');
 			}else{
 				return false;
 			}
