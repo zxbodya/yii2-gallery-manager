@@ -209,7 +209,7 @@ class GalleryBehavior extends Behavior
 			}
 		}
 
-		return $this->_images[0]->getUrl('bc');
+		return $this->_images[0]->getUrl('original');
 	}
 
     protected function getFileName($imageId, $version = 'original')
