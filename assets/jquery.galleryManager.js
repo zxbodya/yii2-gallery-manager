@@ -223,7 +223,7 @@
 			var photo = $(this).closest('.photo');
 			var id = photo.data('id');
 			// here can be question to confirm delete
-			if (!confirm('Realy?')) return false;
+			if (!confirm('Вы уверены что хотите удалить фото безвозвратно?')) return false;
 			removePhotos([id]);
 			return false;
 		}
