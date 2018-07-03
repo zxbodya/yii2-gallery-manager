@@ -12,9 +12,11 @@
 		hasDesc: true,
 
 		uploadUrl: '',
+		uploadFromServerUrl: '',
 		deleteUrl: '',
 		updateUrl: '',
 		arrangeUrl: '',
+		saveFromServerUrl: '',
 
 		photos: [],
 
@@ -36,6 +38,7 @@
 	};
 
 	function galleryManager(el, options) {
+
 		//Extending options:
 		var opts = $.extend({}, galleryDefaults, options);
 		//code
@@ -142,7 +145,7 @@
 			var photo = $(photoTemplate);
 			photos[id] = photo;
 			photo.data('id', id);
-			photo.data('rank', rank);
+			photo.data('rank', id);
 
 			$('img', photo).attr('src', src);
 			if (opts.hasName){
@@ -158,7 +161,6 @@
 			/* after add callback */
 			eval(opts.afterAdd);
 			/* after add callback */
-
 			return photo;
 		}
 
@@ -191,7 +193,7 @@
 		}
 
 		function removePhotos(ids) {
-
+	
 			/* before remove callback */
 			eval(opts.beforeRemove);
 			/* before remove callback */
@@ -218,12 +220,49 @@
 			/* after remove callback */
 		}
 
+		function removePhotosToBasket(ids) {
+	
+			/* before remove callback */
+			eval(opts.beforeRemove);
+			/* before remove callback */
+			$.ajax({
+				type: 'POST',
+				url: '/basket/add-to-basket-array',
+				async: true,
+				data: 'table=gallery_image&'+'id[]=' + ids.join('&id[]='),
+				success: function (t) {
+					if (t) {
+						for (var i = 0, l = ids.length; i < l; i++) {
+							photos[ids[i]].remove();
+							delete photos[ids[i]];
+						}
+					} else {
+						console.log('no-no-no cat!!!');
+					}
+				}
+			});
+
+			/* after remove callback */
+			eval(opts.afterRemove);
+			/* after remove callback */
+		}
+
+		function deleteClickToBasket(e) {
+			e.preventDefault();
+			var photo = $(this).closest('.photo');
+			var id = photo.data('id');
+			// here can be question to confirm delete
+			if (!confirm('Вы уверены что хотите удалить фото в корзину?')) return false;
+			removePhotosToBasket([id]);
+			return false;
+		}
+
 		function deleteClick(e) {
 			e.preventDefault();
 			var photo = $(this).closest('.photo');
 			var id = photo.data('id');
 			// here can be question to confirm delete
-			if (!confirm('Вы уверены что хотите удалить фото безвозвратно?')) return false;
+			if (!confirm('Вы уверены что хотите удалить фото навсегда?')) return false;
 			removePhotos([id]);
 			return false;
 		}
@@ -233,7 +272,7 @@
 			var photo = $(this).closest('.photo');
 			var id = photo.data('id');
 			editPhotos([id]);
-			return false;
+			
 		}
 
 		function updateButtons() {
@@ -256,10 +295,11 @@
 		}
 
 		$images
-			.on('click', '.photo .deletePhoto', deleteClick)
+			.on('click', '.photo .deletePhoto', deleteClickToBasket)
 			.on('click', '.photo .editPhoto', editClick)
 			.on('click', '.photo .photo-select', selectChanged);
 
+		
 
 		if(options.editable){
 			$('.images', $sorter).sortable({tolerance: "pointer"}).disableSelection().bind("sortstop", function () {
@@ -292,6 +332,7 @@
 		}
 
 		if (window.FormData !== undefined) { // if XHR2 available
+
 			var uploadFileName = $('.afile', $gallery).attr('name');
 
 			var multiUpload = function (files) {
@@ -319,6 +360,7 @@
 						uploadedCount++;
 						if (this.status == 200) {
 							var resp = JSON.parse(this.response);
+							console.log(resp)
 							addPhoto(resp['id'], resp['preview'], resp['name'], resp['description'], resp['rank'], resp['disable']);
 							ids.push(resp['id']);
 						} else {
@@ -395,6 +437,7 @@
 
 			$('.afile', $gallery).attr('multiple', 'true').on('change', function (e) {
 				e.preventDefault();
+
 				multiUpload(this.files);
 			});
 		} else {
@@ -465,9 +508,72 @@
 			$('.photo.selected', $sorter).each(function () {
 				ids.push($(this).data('id'));
 			});
-			removePhotos(ids);
+			removePhotosToBasket(ids);
 
 		});
+	
+		$('.upload_from_server', $gallery).click(function (e) {
+			$('.server-modal').modal();
+			var mod = $('.server-modal');
+			var html = "";
+			
+			$.post( opts.uploadFromServerUrl, function( data ) {
+ 				var arr = $.parseJSON(data);
+ 				var src = [];
+ 				var ids = [];
+ 				for (var i = 0; i < arr.length; i++) {
+ 				 	src[i]  = '/' + arr[i].path + arr[i].name;
+ 				 	html += '<div class="col-md-3 "><img class="img-serv" data-id="" src="'+src[i]+'"/></div>';
+ 				}
+
+ 				mod.find('.modal-body').html(html);
+ 				var filesCount = 0;
+ 				var uploadedCount = 0;
+ 				$('.server-modal').click(function(event){
+ 					 var target = $( event.target );
+ 					 
+ 					  if ( target.is( ".img-serv" ) ) {
+ 					  	if ( target.is( ".selected" ) ) {
+ 					  		target.removeClass("selected");
+ 					  		filesCount -=1;
+ 					  	} else {
+ 					  		target.addClass("selected");
+ 					  		filesCount +=1;
+ 					  	}
+					  }
+					  if (target.is( ".upload-select" ))  {
+
+					  	$progressOverlay.show();
+						$uploadProgress.css('width', '5%');
+						mod.modal('hide');
+						$('.img-serv.selected').each(function(i,elem) {
+						  	$.post( opts.saveFromServerUrl,{src: $(elem).attr('src')}, function( data ) {
+
+								data = $.parseJSON(data);
+								addPhoto(data.id, data.preview, data.name, data.description, data.rank, data.disable);
+								ids.push(data.id);
+
+								uploadedCount +=1;
+								$uploadProgress.css('width', '' + (5 + 95 * uploadedCount / filesCount) + '%');
+								if (uploadedCount === filesCount) {
+									$uploadProgress.css('width', '100%');
+									$progressOverlay.hide();
+									editPhotos(ids);
+								}
+
+							});
+						});
+
+					  }
+ 				})
+ 				
+			});
+
+		});
+
+	
+
+
 
 		$('.select_all', $gallery).change(function () {
 			if ($(this).prop('checked')) {
@@ -486,6 +592,10 @@
 			var resp = opts.photos[i];
 			addPhoto(resp['id'], resp['preview'], resp['name'], resp['description'], resp['rank'], resp['disable']);
 		}
+
+
+
+		
 	}
 
 	// The actual plugin

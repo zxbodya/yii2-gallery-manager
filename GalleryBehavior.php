@@ -7,6 +7,7 @@ use Imagine\Image\ImageInterface;
 use yii\base\Behavior;
 use yii\base\Exception;
 use yii\db\ActiveRecord;
+use Yii;
 use yii\db\Query;
 use yii\imagine\Image;
 
@@ -104,6 +105,8 @@ class GalleryBehavior extends Behavior
      * @var string Table name for saving gallery images meta information
      */
     public $tableName = '{{%gallery_image}}';
+    public $logTableName = '{{%history}}';
+    public $entity_type = '3';
     protected $_galleryId;
 
     /**
@@ -135,8 +138,31 @@ class GalleryBehavior extends Behavior
         ];
     }
 
+    public function logAdd($id) {
+        $db = \Yii::$app->db;
+        $db->createCommand()
+            ->insert(
+                $this->logTableName,
+                [
+                    'entity_type' => $this->entity_type,
+                    'entity_id' => $id,
+                    'user_id' => Yii::$app->user->id,
+                    'changes' => 'Add image',
+                ]
+            )->execute();
+    }
+
+    public function logDelete($id) {
+        $db = \Yii::$app->db;
+        $db->createCommand()
+            ->delete(
+                $this->logTableName,
+                ['id' => $id]
+            )->execute();
+    }
+
     public function beforeDelete()
-    {
+    { 
         $images = $this->getImages();
         foreach ($images as $image) {
             $this->deleteImage($image->id);
@@ -175,7 +201,7 @@ class GalleryBehavior extends Behavior
             $imagesData = $query
                 ->select(['id', 'name', 'type', 'description', 'rank', 'disable'])
                 ->from($this->tableName)
-                ->where(['type' => $this->type, 'ownerId' => $this->getGalleryId()])
+                ->where(['type' => $this->type, 'ownerId' => $this->getGalleryId(), 'is_in_basket' => 0])
                 ->orderBy(['rank' => 'asc'])
                 ->all();
 
@@ -315,7 +341,7 @@ class GalleryBehavior extends Behavior
 
     /////////////////////////////// ========== Public Actions ============ ///////////////////////////
     public function deleteImage($imageId)
-    {
+    {   
         foreach ($this->versions as $version => $fn) {
             $filePath = $this->getFilePath($imageId, $version);
             $this->removeFile($filePath);
@@ -332,10 +358,27 @@ class GalleryBehavior extends Behavior
                 $this->tableName,
                 ['id' => $imageId]
             )->execute();
+
+        $this->logDelete($imageId);
     }
 
+    public function deleteImageFromBasket($imageId, $directory)
+    {   
+        $this->removeDirectories($directory);
+        $this->logDelete($imageId);
+    }
+
+    public function removeDirectories($dir) {
+        if ($objs = glob($dir."/*", GLOB_BRACE)) {
+           foreach($objs as $obj) {
+             is_dir($obj) ? $this->removeDirectories($obj) : unlink($obj);
+           }
+        }
+        rmdir($dir);
+   }
+
     public function deleteImages($imageIds)
-    {
+    {   
         foreach ($imageIds as $imageId) {
             $this->deleteImage($imageId);
         }
@@ -351,7 +394,7 @@ class GalleryBehavior extends Behavior
     }
 
     public function addImage($fileName)
-    {
+    {   
         $db = \Yii::$app->db;
         $db->createCommand()
             ->insert(
@@ -373,6 +416,8 @@ class GalleryBehavior extends Behavior
 
         $this->replaceImage($id, $fileName);
 
+        $this->logAdd($id);
+
         $galleryImage = new GalleryImage($this, ['id' => $id]);
 
         if ($this->_images !== null) {
@@ -382,6 +427,37 @@ class GalleryBehavior extends Behavior
         return $galleryImage;
     }
 
+    public function addImageFormServ($fileName)
+    {
+        $db = \Yii::$app->db;
+        $db->createCommand()
+            ->insert(
+                $this->tableName,
+                [
+                    'type' => $this->type,
+                    'ownerId' => $this->getGalleryId()
+                ]
+                // ToDo еще не обработано новое поле disable
+            )->execute();
+
+        $id = $db->getLastInsertID('gallery_image_id_seq');
+        $db->createCommand()
+            ->update(
+                $this->tableName,
+                ['rank' => $id],
+                ['id' => $id]
+            )->execute();
+
+        $this->replaceImage($id, $fileName);
+        
+        $galleryImage = new GalleryImage($this, ['id' => $id]);
+
+        if ($this->_images !== null) {
+            $this->_images[] = $galleryImage;
+        }
+
+        return $galleryImage;
+    }
 
     public function arrange($order)
     {

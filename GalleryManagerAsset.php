@@ -12,7 +12,7 @@ class GalleryManagerAsset extends AssetBundle
         //'jquery.iframe-transport.js',
         //'jquery.galleryManager.js',
         'jquery.iframe-transport.min.js',
-        'jquery.galleryManager.min.js',
+        'jquery.galleryManager.js',
     ];
     public $css = [
         'galleryManager.css'

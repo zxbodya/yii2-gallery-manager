@@ -59,6 +59,7 @@ class GalleryManager extends Widget
         }
 
         $images = array();
+
         foreach ($this->behavior->getImages() as $image) {
             $images[] = array(
                 'id' => $image->id,
@@ -69,7 +70,8 @@ class GalleryManager extends Widget
                 'preview' => $image->getUrl('original'),
             );
         }
-
+         //var_dump($images );
+       
         $baseUrl = [
             $this->apiRoute,
             'type' => $this->behavior->type,
@@ -81,9 +83,11 @@ class GalleryManager extends Widget
             'hasName' => $this->behavior->hasName ? true : false,
             'hasDesc' => $this->behavior->hasDescription ? true : false,
             'uploadUrl' => Url::to($baseUrl + ['action' => 'ajaxUpload']),
+            'uploadFromServerUrl' => Url::to($baseUrl + ['action' => 'ajaxUploadFromServer']),
             'deleteUrl' => Url::to($baseUrl + ['action' => 'delete']),
             'updateUrl' => Url::to($baseUrl + ['action' => 'changeData']),
             'arrangeUrl' => Url::to($baseUrl + ['action' => 'order']),
+            'saveFromServerUrl' => Url::to($baseUrl + ['action' => 'saveFromServer']),
             'nameLabel' => Yii::t('galleryManager/main', 'Name'),
             'descriptionLabel' => Yii::t('galleryManager/main', 'Description'),
             'photos' => $images,
@@ -99,7 +103,6 @@ class GalleryManager extends Widget
         $view = $this->getView();
         GalleryManagerAsset::register($view);
         $view->registerJs("$('#{$this->id}').galleryManager({$opts});");
-
         $this->options['id'] = $this->id;
         $this->options['class'] = 'gallery-manager';
 

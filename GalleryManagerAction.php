@@ -73,6 +73,12 @@ class GalleryManagerAction extends Action
             case 'order':
                 return $this->actionOrder(Yii::$app->request->post('order'));
                 break;
+            case 'ajaxUploadFromServer':
+                return $this->actionAjaxUploadFromServer();
+                break;
+            case 'saveFromServer':
+                return $this->actionSaveFromServer();
+                break;
             default:
                 throw new HttpException(400, 'Action do not exists');
                 break;
@@ -109,8 +115,8 @@ class GalleryManagerAction extends Action
         $imageFile = UploadedFile::getInstanceByName('gallery-image');
 
         $fileName = $imageFile->tempName;
-        $image = $this->behavior->addImage($fileName);
 
+        $image = $this->behavior->addImage($fileName);
         // not "application/json", because  IE8 trying to save response as a file
 
         Yii::$app->response->headers->set('Content-Type', 'text/html');
@@ -124,6 +130,39 @@ class GalleryManagerAction extends Action
                 'preview' => $image->getUrl('original'),
             )
         );
+    }
+
+    public function actionSaveFromServer()
+    {   
+
+        $image = $this->behavior->addImageFormServ(Yii::$app->basePath.'/web'.Yii::$app->request->post('src'));
+
+        Yii::$app->response->headers->set('Content-Type', 'text/html');
+
+         return Json::encode(
+            array(
+                'id' => $image->id,
+                'rank' => $image->rank,
+                'name' => (string)$image->name,
+                'description' => (string)$image->description,
+                'preview' => $image->getUrl('original'),
+            )
+        );
+    }
+
+    public function actionAjaxUploadFromServer()
+    {
+        $files=\yii\helpers\FileHelper::findFiles(Yii::$app->basePath.'/web/stock/');
+
+        foreach ($files as $key => $value) {
+            $file = str_replace(Yii::$app->basePath."/web/", '', $value);
+            $posNameFile = stripos($file, strrchr($file , "/"));
+
+            $res[$key]['name'] = substr($file, $posNameFile+1);
+            $res[$key]['path'] = substr($file, 0, $posNameFile+1);
+        }
+
+        return Json::encode($res);
     }
 
     /**

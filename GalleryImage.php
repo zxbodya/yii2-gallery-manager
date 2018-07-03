@@ -22,7 +22,7 @@ class GalleryImage
     {
 
         $this->galleryBehavior = $galleryBehavior;
-
+        
         $this->name = isset($props['name']) ? $props['name'] : '';
         $this->type = isset($props['type']) ? $props['type'] : '';
         $this->description = isset($props['description']) ? $props['description'] : '';
@@ -40,4 +40,6 @@ class GalleryImage
     {
         return $this->galleryBehavior->getUrl($this->id, $version);
     }
+
+
 }

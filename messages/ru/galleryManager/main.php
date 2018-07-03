@@ -16,4 +16,5 @@ return [
     'Select all' => 'Выбрать все',
     'Drop Files Here…' => 'Перетащите файлы сюда…',
     'Uploading images…' => 'Картинки загружаются…',
+    'Upload selected' => 'Загрузить выбранные',
 ];

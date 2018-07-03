@@ -33,6 +33,10 @@ if($editable){ ?>
             <div class="btn btn-default disabled remove_selected">
                 <i class="glyphicon glyphicon-remove"></i> <?php echo Yii::t('galleryManager/main', 'Remove'); ?>
             </div>
+
+             <div class="btn btn-success  upload_from_server">
+                 Upload
+            </div>
         </div>
     </div>
 
@@ -45,7 +49,37 @@ if($editable){ ?>
         <br style="clear: both;"/>
     </div>
 
+
+
+
+ 
+
 <?php if($editable) { ?>
+<div class="server-modal modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <a class="close" data-dismiss="modal">×</a>
+
+                    <h3 class="modal-title">Загрузить с сервера</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="form"></div>
+                </div>
+                <div class="clear"></div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-primary save-changes upload-select" onclick="return false">
+                        <?php echo Yii::t( 'galleryManager/main', 'Upload selected' ) ?>
+                    </a>
+                    <a href="#" class="btn" data-dismiss="modal"><?php echo Yii::t(
+                            'galleryManager/main',
+                            'Close'
+                        ) ?></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal window to edit photo information -->
     <div class="editor-modal modal fade">
         <div class="modal-dialog">
