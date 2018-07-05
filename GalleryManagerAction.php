@@ -120,7 +120,7 @@ class GalleryManagerAction extends Action
         // not "application/json", because  IE8 trying to save response as a file
 
         Yii::$app->response->headers->set('Content-Type', 'text/html');
-
+        
         return Json::encode(
             array(
                 'id' => $image->id,

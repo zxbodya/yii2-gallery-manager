@@ -59,7 +59,7 @@ class GalleryManager extends Widget
         }
 
         $images = array();
-
+  
         foreach ($this->behavior->getImages() as $image) {
             $images[] = array(
                 'id' => $image->id,

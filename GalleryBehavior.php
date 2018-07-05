@@ -253,7 +253,6 @@ class GalleryBehavior extends Behavior
     public function getUrl($imageId, $version = 'original')
     {
         $path = $this->getFilePath($imageId, $version);
-
         if (!file_exists($path)) {
             return null;
         }

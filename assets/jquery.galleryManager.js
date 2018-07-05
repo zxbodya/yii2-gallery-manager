@@ -141,11 +141,11 @@
 			/* before add callback */
 			eval(opts.beforeAdd);
 			/* before add callback */
-
+			
 			var photo = $(photoTemplate);
 			photos[id] = photo;
 			photo.data('id', id);
-			photo.data('rank', id);
+			photo.data('rank', rank);
 
 			$('img', photo).attr('src', src);
 			if (opts.hasName){
@@ -550,6 +550,7 @@
 						  	$.post( opts.saveFromServerUrl,{src: $(elem).attr('src')}, function( data ) {
 
 								data = $.parseJSON(data);
+								
 								addPhoto(data.id, data.preview, data.name, data.description, data.rank, data.disable);
 								ids.push(data.id);
 
