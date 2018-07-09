@@ -221,7 +221,6 @@
 		}
 
 		function removePhotosToBasket(ids) {
-	
 			/* before remove callback */
 			eval(opts.beforeRemove);
 			/* before remove callback */
@@ -229,7 +228,7 @@
 				type: 'POST',
 				url: '/basket/add-to-basket-array',
 				async: true,
-				data: 'table=gallery_image&'+'id[]=' + ids.join('&id[]='),
+				data: {table: 'gallery_image', ids : ids},
 				success: function (t) {
 					if (t) {
 						for (var i = 0, l = ids.length; i < l; i++) {

@@ -373,7 +373,9 @@ class GalleryBehavior extends Behavior
              is_dir($obj) ? $this->removeDirectories($obj) : unlink($obj);
            }
         }
-        rmdir($dir);
+        if(file_exists($dir)) {
+            rmdir($dir);
+        }
    }
 
     public function deleteImages($imageIds)
