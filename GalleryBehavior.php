@@ -138,24 +138,6 @@ class GalleryBehavior extends Behavior
         ];
     }
 
-    public function logAdd($id) {
-        $db = \Yii::$app->db;
-        $data = [
-            'id' => $id,
-            'operations' => 1
-        ];
-        $db->createCommand()
-            ->insert(
-                $this->logTableName,
-                [
-                    'entity_type' => '3',
-                    'entity_id' => $id,
-                    'user_id' => Yii::$app->user->id,
-                    'changes' => $data,
-                ]
-            )->execute();
-    }
-
     public function beforeDelete()
     { 
         $images = $this->getImages();
@@ -352,8 +334,6 @@ class GalleryBehavior extends Behavior
                 $this->tableName,
                 ['id' => $imageId]
             )->execute();
-
-        $this->logDelete($imageId, $dirPath);
     }
 
     public function deleteImages($imageIds)
@@ -395,7 +375,7 @@ class GalleryBehavior extends Behavior
 
         $this->replaceImage($id, $fileName);
 
-        $this->logAdd($id);
+        \backend\behaviors\ChangeLogBehavior::logAdd($id, $this->entity_type);
 
         $galleryImage = new GalleryImage($this, ['id' => $id]);
              
@@ -428,7 +408,8 @@ class GalleryBehavior extends Behavior
             )->execute();
 
         $this->replaceImage($id, $fileName);
-        $this->logAdd($id);
+
+        \backend\behaviors\ChangeLogBehavior::logAdd($id, $this->entity_type);
         
         $galleryImage = new GalleryImage($this, ['id' => $id]);
 
