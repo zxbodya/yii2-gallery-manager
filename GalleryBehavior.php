@@ -140,24 +140,19 @@ class GalleryBehavior extends Behavior
 
     public function logAdd($id) {
         $db = \Yii::$app->db;
+        $data = [
+            'id' => $id,
+            'operations' => 1
+        ];
         $db->createCommand()
             ->insert(
                 $this->logTableName,
                 [
-                    'entity_type' => $this->entity_type,
+                    'entity_type' => '3',
                     'entity_id' => $id,
                     'user_id' => Yii::$app->user->id,
-                    'changes' => 'Add image',
+                    'changes' => $data,
                 ]
-            )->execute();
-    }
-
-    public function logDelete($id) {
-        $db = \Yii::$app->db;
-        $db->createCommand()
-            ->delete(
-                $this->logTableName,
-                ['id' => $id]
             )->execute();
     }
 
@@ -358,25 +353,8 @@ class GalleryBehavior extends Behavior
                 ['id' => $imageId]
             )->execute();
 
-        $this->logDelete($imageId);
+        $this->logDelete($imageId, $dirPath);
     }
-
-    public function deleteImageFromBasket($imageId, $directory)
-    {   
-        $this->removeDirectories($directory);
-        $this->logDelete($imageId);
-    }
-
-    public function removeDirectories($dir) {
-        if ($objs = glob($dir."/*", GLOB_BRACE)) {
-           foreach($objs as $obj) {
-             is_dir($obj) ? $this->removeDirectories($obj) : unlink($obj);
-           }
-        }
-        if(file_exists($dir)) {
-            rmdir($dir);
-        }
-   }
 
     public function deleteImages($imageIds)
     {   
@@ -420,7 +398,7 @@ class GalleryBehavior extends Behavior
         $this->logAdd($id);
 
         $galleryImage = new GalleryImage($this, ['id' => $id]);
-
+             
         if ($this->_images !== null) {
             $this->_images[] = $galleryImage;
         }
@@ -450,6 +428,7 @@ class GalleryBehavior extends Behavior
             )->execute();
 
         $this->replaceImage($id, $fileName);
+        $this->logAdd($id);
         
         $galleryImage = new GalleryImage($this, ['id' => $id]);
 
