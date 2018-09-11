@@ -38,7 +38,7 @@ class GalleryImage
      */
     public function getUrl($version)
     {
-        return $this->galleryBehavior->getUrl($this->rank, $version);
+        return $this->galleryBehavior->getUrl($this->id, $version);
     }
 
 

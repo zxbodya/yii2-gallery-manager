@@ -70,7 +70,7 @@ class GalleryManager extends Widget
                 'preview' => $image->getUrl('original'),
             );
         }
-         //var_dump($images );
+         var_dump($images );
        
         $baseUrl = [
             $this->apiRoute,
