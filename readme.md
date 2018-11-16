@@ -42,6 +42,7 @@ to the require section of your `composer.json` file.
 
 ## Usage
 
+### Prepare
 Add migration to create table for images:
 
 ```php
@@ -53,9 +54,16 @@ class m150318_154933_gallery_ext
 ```
 Or better - copy migration to you application(but be sure to **remove namespace from it** - it should be in global namespace)
 
+### Add configurations for upload and store images
+
 Add GalleryBehavior to your model, and configure it, create folder for uploaded files.
 
 ```php
+use zxbodya\yii2\galleryManager\GalleryBehavior;
+
+class Product extends \yii\db\ActiveRecord 
+{
+...
 public function behaviors()
 {
     return [
@@ -73,7 +81,7 @@ public function behaviors()
                          ->thumbnail(new \Imagine\Image\Box(200, 200));
                  },
                  'medium' => function ($img) {
-                     /** @var Imagine\Image\ImageInterface $img */
+                     /** @var \Imagine\Image\ImageInterface $img */
                      $dstSize = $img->getSize();
                      $maxWidth = 800;
                      if ($dstSize->getWidth() > $maxWidth) {
@@ -93,6 +101,11 @@ public function behaviors()
 Add GalleryManagerAction in controller somewhere in your application. Also on this step you can add some security checks for this action.
 
 ```php
+use zxbodya\yii2\galleryManager\GalleryManagerAction;
+
+class ProductController extends Controller
+{
+...
 public function actions()
 {
     return [
@@ -110,6 +123,13 @@ public function actions()
 Add ImageAttachmentWidget somewhere in you application, for example in editing from.
 
 ```php
+use zxbodya\yii2\galleryManager\GalleryManager;
+
+/* @var $this yii\web\View */
+/* @var $model Product */
+?>
+...
+<?php
 if ($model->isNewRecord) {
     echo 'Can not upload images for new record';
 } else {
@@ -121,10 +141,12 @@ if ($model->isNewRecord) {
         ]
     );
 }
+?>
 ```
         
 Done!
- 
+
+### Get uploaded images
 Now, you can use uploaded images from gallery like following:
 
 ```php
