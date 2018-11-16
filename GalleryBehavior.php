@@ -8,6 +8,7 @@ use yii\base\Behavior;
 use yii\base\Exception;
 use yii\db\ActiveRecord;
 use yii\db\Query;
+use yii\helpers\FileHelper;
 use yii\imagine\Image;
 
 /**
@@ -253,9 +254,7 @@ class GalleryBehavior extends Behavior
 
     private function removeFile($fileName)
     {
-        if (file_exists($fileName)) {
-            @unlink($fileName);
-        }
+        return FileHelper::unlink($fileName);
     }
 
     /**
@@ -277,14 +276,7 @@ class GalleryBehavior extends Behavior
 
     private function createFolders($filePath)
     {
-        $parts = explode('/', $filePath);
-        // skip file name
-        $parts = array_slice($parts, 0, count($parts) - 1);
-        $targetPath = implode('/', $parts);
-        $path = realpath($targetPath);
-        if (!$path) {
-            mkdir($targetPath, 0777, true);
-        }
+        return FileHelper::createDirectory(FileHelper::normalizePath($filePath), 0777);
     }
 
     /////////////////////////////// ========== Public Actions ============ ///////////////////////////
