@@ -276,7 +276,7 @@ class GalleryBehavior extends Behavior
 
     private function createFolders($filePath)
     {
-        return FileHelper::createDirectory(FileHelper::normalizePath($filePath), 0777);
+        return FileHelper::createDirectory(FileHelper::normalizePath(dirname($filePath)), 0777);
     }
 
     /////////////////////////////// ========== Public Actions ============ ///////////////////////////
