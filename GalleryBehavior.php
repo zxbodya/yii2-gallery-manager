@@ -142,8 +142,7 @@ class GalleryBehavior extends Behavior
         foreach ($images as $image) {
             $this->deleteImage($image->id);
         }
-        $dirPath = $this->directory . '/' . $this->getGalleryId();
-        @rmdir($dirPath);
+        $this->removeDirectory($this->getDirectoryPath());
     }
 
     public function afterFind()
