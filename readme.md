@@ -43,16 +43,28 @@ to the require section of your `composer.json` file.
 ## Usage
 
 ### Prepare
-Add migration to create table for images:
 
+Add migration namespace for your console application config to create table for images
+(add the following lines to the file `%PROJECT_DIR%/console/config/main.php`):
 ```php
-class m150318_154933_gallery_ext
-    extends zxbodya\yii2\galleryManager\migrations\m140930_003227_gallery_manager
-{
-
-}
+return [
+    // ...
+    'controllerMap' => [
+        'migrate' => [
+            'class' => \yii\console\controllers\MigrateController::class,
+            'migrationNamespaces' => [
+                'zxbodya\yii2\galleryManager\migrations',
+            ],
+            'migrationPath' => [
+                '@app/migrations',
+            ],
+        ],
+    ],
+    // ...
+];
 ```
-Or better - copy migration to you application(but be sure to **remove namespace from it** - it should be in global namespace)
+
+Now we should run `yii migrate/up` command for apply all widget migrations.
 
 ### Add configurations for upload and store images
 
