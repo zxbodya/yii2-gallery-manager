@@ -224,6 +224,22 @@ class GalleryBehavior extends Behavior
     }
 
     /**
+     * Get Gallery Id
+     *
+     * @return mixed as string or integer
+     * @throws Exception
+     */
+    public function getGalleryId()
+    {
+        $pk = $this->owner->getPrimaryKey();
+        if (is_array($pk)) {
+            return implode($this->pkGlue, $pk);
+        } else {
+            return $pk;
+        }
+    }
+
+    /**
      * Replace existing image by specified file
      *
      * @param $imageId
@@ -252,31 +268,44 @@ class GalleryBehavior extends Behavior
         }
     }
 
+    /**
+     * Remove single image file
+     * @param $fileName
+     * @return bool
+     */
     private function removeFile($fileName)
     {
         return FileHelper::unlink($fileName);
     }
 
     /**
-     * Get Gallery Id
-     *
-     * @return mixed as string or integer
-     * @throws Exception
+     * Remove a folders for gallery files
+     * @param $filePath string the filename of image
+     * @return bool
      */
-    public function getGalleryId()
+    private function removeDirectory($filePath)
     {
-        $pk = $this->owner->getPrimaryKey();
-        if (is_array($pk)) {
-            return implode($this->pkGlue, $pk);
-        } else {
-            return $pk;
+        try {
+            FileHelper::removeDirectory(dirname($filePath));
+        } catch (\yii\base\ErrorException $exception) {
+            return false;
         }
+
+        return true;
     }
 
-
+    /**
+     * Create a folders for gallery files
+     * @param $filePath string the filename of image
+     * @return bool
+     */
     private function createFolders($filePath)
     {
-        return FileHelper::createDirectory(FileHelper::normalizePath(dirname($filePath)), 0777);
+        try {
+            return FileHelper::createDirectory(FileHelper::normalizePath(dirname($filePath)), 0777);
+        } catch (\yii\base\Exception $exception) {
+            return false;
+        }
     }
 
     /////////////////////////////// ========== Public Actions ============ ///////////////////////////
@@ -287,10 +316,7 @@ class GalleryBehavior extends Behavior
             $this->removeFile($filePath);
         }
         $filePath = $this->getFilePath($imageId, 'original');
-        $parts = explode('/', $filePath);
-        $parts = array_slice($parts, 0, count($parts) - 1);
-        $dirPath = implode('/', $parts);
-        @rmdir($dirPath);
+        $this->removeDirectory($filePath);
 
         $db = \Yii::$app->db;
         $db->createCommand()
