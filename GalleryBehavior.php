@@ -275,7 +275,11 @@ class GalleryBehavior extends Behavior
      */
     private function removeFile($fileName)
     {
-        return FileHelper::unlink($fileName);
+        try {
+            return FileHelper::unlink($fileName);
+        } catch (\yii\base\ErrorException $exception) {
+            return false;
+        }
     }
 
     /**
