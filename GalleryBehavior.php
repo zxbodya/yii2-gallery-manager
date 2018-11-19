@@ -223,6 +223,11 @@ class GalleryBehavior extends Behavior
         return $this->directory . '/' . $this->getFileName($imageId, $version);
     }
 
+    public function getDirectoryPath()
+    {
+        return $this->directory . '/' . $this->getGalleryId();
+    }
+
     /**
      * Get Gallery Id
      *
@@ -343,6 +348,9 @@ class GalleryBehavior extends Behavior
                     return !isset($removed[$image->id]);
                 }
             );
+        }
+        if (is_null($this->_images)) {
+            $this->removeDirectory($this->getDirectoryPath());
         }
     }
 
