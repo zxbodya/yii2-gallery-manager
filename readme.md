@@ -97,6 +97,7 @@ public function behaviors()
 }
 ```
 
+See also [documentations of imagine](https://imagine.readthedocs.io/en/master/usage/introduction.html) for image transformations. 
 
 Add GalleryManagerAction in controller somewhere in your application. Also on this step you can add some security checks for this action.
 
