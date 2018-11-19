@@ -1,4 +1,4 @@
-# Gallery manaager extension changelog
+# Gallery manager extension changelog
 
 Nov 19, 2018
   - After remove all gallery images from model the corresponded folder also will be removing 
