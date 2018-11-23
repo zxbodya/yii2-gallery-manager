@@ -154,7 +154,7 @@ class GalleryBehavior extends Behavior
     public function afterUpdate()
     {
         $galleryId = $this->getGalleryId();
-        if ($this->_galleryId != $galleryId) {
+        if ($this->_galleryId && ($this->_galleryId != $galleryId)) {
             $dirPath1 = $this->directory . '/' . $this->_galleryId;
             $dirPath2 = $this->directory . '/' . $galleryId;
             rename($dirPath1, $dirPath2);
