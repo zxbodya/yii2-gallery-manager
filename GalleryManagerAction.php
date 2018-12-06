@@ -8,6 +8,7 @@ use yii\base\Action;
 use yii\db\ActiveRecord;
 use yii\helpers\Json;
 use yii\web\HttpException;
+use yii\web\NotFoundHttpException;
 use yii\web\UploadedFile;
 
 /**
@@ -29,9 +30,16 @@ class GalleryManagerAction extends Action
     public $pkGlue = '_';
 
     /**
+     * The prefix of string for temporary id for new models
+     * @var string
+     */
+    public $temporaryPrefix = 'temp';
+
+    /**
      * $types to be defined at Controller::actions()
      * @var array Mapping between types and model class names
-     * @example 'post'=>'common\models\Post'
+     * @example 'post' => 'common\models\Post'
+     * @example 'post' => ['class' => common\models\Post::class]
      * @see     GalleryManagerAction::run
      */
     public $types = [];
@@ -52,30 +60,35 @@ class GalleryManagerAction extends Action
         $this->type = Yii::$app->request->get('type');
         $this->behaviorName = Yii::$app->request->get('behaviorName');
         $this->galleryId = Yii::$app->request->get('galleryId');
-        $pkNames = call_user_func([$this->types[$this->type], 'primaryKey']);
-        $pkValues = explode($this->pkGlue, $this->galleryId);
 
-        $pk = array_combine($pkNames, $pkValues);
-
-        $this->owner = call_user_func([$this->types[$this->type], 'findOne'], $pk);
+        if (!array_key_exists($this->type, $this->types)) {
+            throw new HttpException(400, 'Type does not exists');
+        }
+        $this->owner = Yii::createObject($this->types[$this->type]);
+        if ($this->galleryId && substr_compare($this->galleryId, $this->temporaryPrefix, 0, strlen($this->temporaryPrefix)) !== 0) {
+            $pkNames = $this->owner->primaryKey();
+            $pkValues = explode($this->pkGlue, $this->galleryId);
+            $pk = array_combine($pkNames, $pkValues);
+            $this->owner = $this->owner::findOne($pk);
+            if (!$this->owner) {
+                throw new NotFoundHttpException();
+            }
+        }
         $this->behavior = $this->owner->getBehavior($this->behaviorName);
 
         switch ($action) {
             case 'delete':
                 return $this->actionDelete(Yii::$app->request->post('id'));
-                break;
             case 'ajaxUpload':
                 return $this->actionAjaxUpload();
-                break;
             case 'changeData':
                 return $this->actionChangeData(Yii::$app->request->post('photo'));
-                break;
             case 'order':
                 return $this->actionOrder(Yii::$app->request->post('order'));
-                break;
+            case 'deleteOrphan':
+                return $this->actionDeleteOrphan();
             default:
-                throw new HttpException(400, 'Action do not exists');
-                break;
+                throw new HttpException(400, 'Action does not exists');
         }
     }
 
@@ -85,7 +98,6 @@ class GalleryManagerAction extends Action
      *
      * @param $ids
      *
-     * @throws HttpException
      * @return string
      */
     protected function actionDelete($ids)
@@ -97,11 +109,26 @@ class GalleryManagerAction extends Action
     }
 
     /**
+     * Removes orphan images for this gallery
+     * On success returns 'OK'
+     *
+     * @return string
+     * @throws \yii\base\ErrorException
+     * @throws \yii\db\Exception
+     */
+    protected function actionDeleteOrphan()
+    {
+
+        $this->behavior->deleteOrphanImages();
+
+        return 'OK';
+    }
+
+    /**
      * Method to handle file upload thought XHR2
      * On success returns JSON object with image info.
      *
      * @return string
-     * @throws HttpException
      */
     public function actionAjaxUpload()
     {
@@ -119,8 +146,8 @@ class GalleryManagerAction extends Action
             array(
                 'id' => $image->id,
                 'rank' => $image->rank,
-                'name' => (string)$image->name,
-                'description' => (string)$image->description,
+                'name' => (string) $image->name,
+                'description' => (string) $image->description,
                 'preview' => $image->getUrl('preview'),
             )
         );
@@ -142,7 +169,6 @@ class GalleryManagerAction extends Action
         $res = $this->behavior->arrange($order);
 
         return Json::encode($res);
-
     }
 
     /**
@@ -151,8 +177,10 @@ class GalleryManagerAction extends Action
      *
      * @param $imagesData
      *
-     * @throws HttpException
      * @return string
+     * @throws HttpException
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
      */
     public function actionChangeData($imagesData)
     {
@@ -165,8 +193,8 @@ class GalleryManagerAction extends Action
             $resp[] = array(
                 'id' => $model->id,
                 'rank' => $model->rank,
-                'name' => (string)$model->name,
-                'description' => (string)$model->description,
+                'name' => (string) $model->name,
+                'description' => (string) $model->description,
                 'preview' => $model->getUrl('preview'),
             );
         }
