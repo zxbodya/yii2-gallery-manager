@@ -165,7 +165,9 @@ class GalleryBehavior extends Behavior
         if ($this->_galleryId && ($this->_galleryId != $galleryId)) {
             $dirPath1 = $this->directory . '/' . $this->_galleryId;
             $dirPath2 = $this->directory . '/' . $galleryId;
-            rename($dirPath1, $dirPath2);
+            if (is_dir($dirPath1)) {
+                rename($dirPath1, $dirPath2);
+            }
         }
     }
 
@@ -188,7 +190,9 @@ class GalleryBehavior extends Behavior
 
             $dirPath1 = $this->directory . '/' . $this->_galleryId;
             $dirPath2 = $this->directory . '/' . $galleryId;
-            rename($dirPath1, $dirPath2);
+            if (is_dir($dirPath1)) {
+                rename($dirPath1, $dirPath2);
+            }
         }
     }
 
