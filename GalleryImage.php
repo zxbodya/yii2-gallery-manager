@@ -2,12 +2,35 @@
 
 namespace zxbodya\yii2\galleryManager;
 
-class GalleryImage
+/**
+ * Class GalleryImage
+ * This is the model class for table "{{%gallery_image}}"
+ * We can change table name use $tableName property of GalleryBehavior
+ * @see \zxbodya\yii2\galleryManager\GalleryBehavior::$tableName.
+ *
+ * We can use this class in rules:
+ *     public function rules()
+ *     {
+ *         return [
+ *             [['mainPhoto'], 'exist', 'skipOnError' => true, 'targetClass' => get_class(Yii::createObject(GalleryImage::class)), 'targetAttribute' => ['mainPhoto' => 'id']],
+ *         ];
+ *     }
+ *
+ * @property int $id
+ * @property string $type
+ * @property string $ownerId
+ * @property int $rank
+ * @property string $name
+ * @property string $description
+ *
+ * @package zxbodya\yii2\galleryManager
+ */
+class GalleryImage extends \yii\db\ActiveRecord
 {
-    public $name;
-    public $description;
-    public $id;
-    public $rank;
+    /**
+     * @var string table name of AR
+     */
+    protected static $tableName;
     /**
      * @var GalleryBehavior
      */
@@ -15,17 +38,22 @@ class GalleryImage
 
     /**
      * @param GalleryBehavior $galleryBehavior
-     * @param array           $props
+     * @param array $props
      */
-    function __construct(GalleryBehavior $galleryBehavior, array $props)
+    public function __construct(GalleryBehavior $galleryBehavior, array $props)
     {
-
         $this->galleryBehavior = $galleryBehavior;
+        self::$tableName = $galleryBehavior->tableName;
 
-        $this->name = isset($props['name']) ? $props['name'] : '';
-        $this->description = isset($props['description']) ? $props['description'] : '';
-        $this->id = isset($props['id']) ? $props['id'] : '';
-        $this->rank = isset($props['rank']) ? $props['rank'] : '';
+        parent::__construct($props);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function tableName()
+    {
+        return static::$tableName;
     }
 
     /**
