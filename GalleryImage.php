@@ -12,7 +12,9 @@ namespace zxbodya\yii2\galleryManager;
  *     public function rules()
  *     {
  *         return [
- *             [['mainPhoto'], 'exist', 'skipOnError' => true, 'targetClass' => get_class(Yii::createObject(GalleryImage::class)), 'targetAttribute' => ['mainPhoto' => 'id']],
+ *             [['mainPhoto'], 'exist', 'skipOnError' => true, 'targetClass' => get_class(Yii::createObject(GalleryImage::class, [[
+ *                 $this->getBehavior('galleryBehavior')
+ *             ]])), 'targetAttribute' => ['mainPhoto' => 'id']],
  *         ];
  *     }
  *
