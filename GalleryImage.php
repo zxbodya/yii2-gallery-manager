@@ -12,9 +12,9 @@ namespace zxbodya\yii2\galleryManager;
  *     public function rules()
  *     {
  *         return [
- *             [['mainPhoto'], 'exist', 'skipOnError' => true, 'targetClass' => get_class(Yii::createObject(GalleryImage::class, [[
+ *             [['mainPhoto'], 'exist', 'skipOnError' => true, 'targetClass' => get_class(Yii::createObject(GalleryImage::class, [
  *                 $this->getBehavior('galleryBehavior')
- *             ]])), 'targetAttribute' => ['mainPhoto' => 'id']],
+ *             ])), 'targetAttribute' => ['mainPhoto' => 'id']],
  *         ];
  *     }
  *
@@ -42,7 +42,7 @@ class GalleryImage extends \yii\db\ActiveRecord
      * @param GalleryBehavior $galleryBehavior
      * @param array $props
      */
-    public function __construct(GalleryBehavior $galleryBehavior, array $props)
+    public function __construct(GalleryBehavior $galleryBehavior, array $props = [])
     {
         $this->galleryBehavior = $galleryBehavior;
         self::$tableName = $galleryBehavior->tableName;
