@@ -74,6 +74,11 @@
         '<textarea class="form-control" name="photo[' + id + '][description]" rows="3" cols="40" class="input-xlarge" id="photo_description_' + id + '">' + htmlEscape(description) + '</textarea>' +
         '</div>' : '') +
 
+        '<div class="form-group">' +
+        '<label class="control-label" for="photo_alt_' + id + '">' + 'Alt' + ':</label>' +
+          '<input class="form-control" type="text" name="photo[' + id + '][alt]" class="input-xlarge" value="' + htmlEscape(name) + '" id="photo_alt_' + id + '"/>' +
+        '</div>' +
+
         '</div>' +
         '</div>';
       return $(html);
