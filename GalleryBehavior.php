@@ -417,12 +417,12 @@ class GalleryBehavior extends Behavior
                 $image->description = $imagesData[$image->id]['description'];
             }
             if (isset($imagesData[$image->id]['alt'])) {
-                $image->description = $imagesData[$image->id]['alt'];
+                $image->alt = $imagesData[$image->id]['alt'];
             }
             \Yii::$app->db->createCommand()
                 ->update(
                     $this->tableName,
-                    ['name' => $image->name, 'description' => $image->description, 'alt' => $this->alt],
+                    ['name' => $image->name, 'description' => $image->description, 'alt' => $image->alt],
                     ['id' => $image->id]
                 )->execute();
         }
