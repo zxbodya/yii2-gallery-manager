@@ -86,13 +86,13 @@
     }
 
     var photoTemplate = '<div class="photo">' + '<div class="image-preview"><img src=""/></div><div class="caption">';
+    photoTemplate += '<alt></alt>';
     if (opts.hasName) {
       photoTemplate += '<h5></h5>';
     }
     if (opts.hasDesc) {
       photoTemplate += '<p></p>';
     }
-    photoTemplate += '<alt></alt>';
     photoTemplate += '</div><div class="actions">';
 
     if (opts.hasName || opts.hasDesc) {
