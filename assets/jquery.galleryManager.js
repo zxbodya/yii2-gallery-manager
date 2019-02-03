@@ -96,7 +96,7 @@
     '</div><input type="checkbox" class="photo-select"/></div>';
 
 
-    function addPhoto(id, src, name, description, rank) {
+    function addPhoto(id, src, name, description, rank, alt) {
       var photo = $(photoTemplate);
       photos[id] = photo;
       photo.data('id', id);
@@ -109,6 +109,8 @@
       if (opts.hasDesc){
         $('.caption p', photo).text(description);
       }
+
+        $('.caption p', photo).text(alt);
 
       $images.append(photo);
       return photo;
@@ -236,7 +238,7 @@
             uploadedCount++;
             if (this.status == 200) {
               var resp = JSON.parse(this.response);
-              addPhoto(resp['id'], resp['preview'], resp['name'], resp['description'], resp['rank']);
+              addPhoto(resp['id'], resp['preview'], resp['name'], resp['description'], resp['rank'], resp['alt']);
               ids.push(resp['id']);
             } else {
               // exception !!!
@@ -325,7 +327,7 @@
           processData: false,
           dataType: "json"
         }).done(function (resp) {
-          addPhoto(resp['id'], resp['preview'], resp['name'], resp['description'], resp['rank']);
+          addPhoto(resp['id'], resp['preview'], resp['name'], resp['description'], resp['rank'], resp['alt']);
           ids.push(resp['id']);
           $uploadProgress.css('width', '100%');
           $progressOverlay.hide();
@@ -393,7 +395,7 @@
 
     for (var i = 0, l = opts.photos.length; i < l; i++) {
       var resp = opts.photos[i];
-      addPhoto(resp['id'], resp['preview'], resp['name'], resp['description'], resp['rank']);
+      addPhoto(resp['id'], resp['preview'], resp['name'], resp['description'], resp['rank'], resp['alt']);
     }
   }
 

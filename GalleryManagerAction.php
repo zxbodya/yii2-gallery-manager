@@ -119,6 +119,7 @@ class GalleryManagerAction extends Action
             array(
                 'id' => $image->id,
                 'rank' => $image->rank,
+                'alt' => $image->alt,
                 'name' => (string)$image->name,
                 'description' => (string)$image->description,
                 'preview' => $image->getUrl('preview'),
@@ -165,6 +166,7 @@ class GalleryManagerAction extends Action
             $resp[] = array(
                 'id' => $model->id,
                 'rank' => $model->rank,
+                'alt' => $model->alt,
                 'name' => (string)$model->name,
                 'description' => (string)$model->description,
                 'preview' => $model->getUrl('preview'),

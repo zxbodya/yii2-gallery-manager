@@ -63,6 +63,7 @@ class GalleryManager extends Widget
             $images[] = array(
                 'id' => $image->id,
                 'rank' => $image->rank,
+                'alt' => $image->alt,
                 'name' => (string)$image->name,
                 'description' => (string)$image->description,
                 'preview' => $image->getUrl('preview'),

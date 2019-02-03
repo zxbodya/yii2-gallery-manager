@@ -172,7 +172,7 @@ class GalleryBehavior extends Behavior
             $query = new \yii\db\Query();
 
             $imagesData = $query
-                ->select(['id', 'name', 'description', 'rank'])
+                ->select(['id', 'name', 'description', 'rank', 'alt'])
                 ->from($this->tableName)
                 ->where(['type' => $this->type, 'ownerId' => $this->getGalleryId()])
                 ->orderBy(['rank' => 'asc'])
@@ -397,7 +397,7 @@ class GalleryBehavior extends Behavior
             }
         } else {
             $rawImages = (new Query())
-                ->select(['id', 'name', 'description', 'rank'])
+                ->select(['id', 'name', 'description', 'rank', 'alt'])
                 ->from($this->tableName)
                 ->where(['type' => $this->type, 'ownerId' => $this->getGalleryId()])
                 ->andWhere(['in', 'id', $imageIds])
