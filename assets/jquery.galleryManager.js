@@ -7,6 +7,7 @@
 
     nameLabel: 'Name',
     descriptionLabel: 'Description',
+    altLabel: 'Alt',
 
     hasName: true,
     hasDesc: true,
@@ -75,7 +76,7 @@
         '</div>' : '') +
 
         '<div class="form-group">' +
-        '<label class="control-label" for="photo_alt_' + id + '">' + 'Alt' + ':</label>' +
+        '<label class="control-label" for="photo_alt_' + id + '">' + opts.altLabel + ':</label>' +
           '<input class="form-control" type="text" name="photo[' + id + '][alt]" class="input-xlarge" value="' + htmlEscape(name) + '" id="photo_alt_' + id + '"/>' +
         '</div>' +
 
