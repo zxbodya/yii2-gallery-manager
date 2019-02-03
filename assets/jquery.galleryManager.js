@@ -92,6 +92,7 @@
     if (opts.hasDesc) {
       photoTemplate += '<p></p>';
     }
+    photoTemplate += '<alt></alt>';
     photoTemplate += '</div><div class="actions">';
 
     if (opts.hasName || opts.hasDesc) {
@@ -116,7 +117,7 @@
         $('.caption p', photo).text(description);
       }
 
-        $('.alt p', photo).text(alt);
+        $('.caption alt', photo).text(alt);
 
       $images.append(photo);
       return photo;
@@ -132,7 +133,7 @@
           src = $('img', photo).attr('src'),
           name = $('.caption h5', photo).text(),
           description = $('.caption p', photo).text();
-          alt = $('.alt p', photo).text();
+          alt = $('.caption alt', photo).text();
         form.append(createEditorElement(id, src, name, description, alt));
       }
       if (l > 0){
@@ -355,7 +356,7 @@
             $('.caption h5', photo).text(p['name']);
           if (opts.hasDesc)
             $('.caption p', photo).text(p['description']);
-            $('.alt p', photo).text(p['alt']);
+            $('.caption alt', photo).text(p['alt']);
         }
         $editorModal.modal('hide');
         //deselect all items after editing
