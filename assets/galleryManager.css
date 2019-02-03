@@ -64,6 +64,10 @@
     height: 3em;
     overflow: hidden;
     font-size: 13px; }
+  .gallery-manager .alt p {
+    height: 3em;
+    overflow: hidden;
+    font-size: 13px; }
   .gallery-manager.no-desc .photo {
     height: 138px; }
   .gallery-manager.no-name .photo {

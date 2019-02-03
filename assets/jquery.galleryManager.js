@@ -53,7 +53,7 @@
         .replace(/>/g, '&gt;');
     }
 
-    function createEditorElement(id, src, name, description) {
+    function createEditorElement(id, src, name, description, alt) {
 
       var html = '<div class="photo-editor row">' +
         '<div class="col-xs-4">' +
@@ -77,7 +77,7 @@
 
         '<div class="form-group">' +
         '<label class="control-label" for="photo_alt_' + id + '">' + opts.altLabel + ':</label>' +
-          '<input class="form-control" type="text" name="photo[' + id + '][alt]" class="input-xlarge" value="' + htmlEscape(name) + '" id="photo_alt_' + id + '"/>' +
+          '<input class="form-control" type="text" name="photo[' + id + '][alt]" class="input-xlarge" value="' + htmlEscape(alt) + '" id="photo_alt_' + id + '"/>' +
         '</div>' +
 
         '</div>' +
@@ -116,7 +116,7 @@
         $('.caption p', photo).text(description);
       }
 
-        $('.caption p', photo).text(alt);
+        $('.alt p', photo).text(alt);
 
       $images.append(photo);
       return photo;
@@ -132,7 +132,8 @@
           src = $('img', photo).attr('src'),
           name = $('.caption h5', photo).text(),
           description = $('.caption p', photo).text();
-        form.append(createEditorElement(id, src, name, description));
+          alt = $('.alt p', photo).text();
+        form.append(createEditorElement(id, src, name, description, alt));
       }
       if (l > 0){
         $editorModal.modal('show');
@@ -354,6 +355,7 @@
             $('.caption h5', photo).text(p['name']);
           if (opts.hasDesc)
             $('.caption p', photo).text(p['description']);
+            $('.alt p', photo).text(p['alt']);
         }
         $editorModal.modal('hide');
         //deselect all items after editing
