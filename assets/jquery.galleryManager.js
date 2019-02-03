@@ -132,7 +132,7 @@
         var photo = photos[id],
           src = $('img', photo).attr('src'),
           name = $('.caption h5', photo).text(),
-          description = $('.caption p', photo).text();
+          description = $('.caption p', photo).text(),
           alt = $('.caption alt', photo).text();
         form.append(createEditorElement(id, src, name, description, alt));
       }
