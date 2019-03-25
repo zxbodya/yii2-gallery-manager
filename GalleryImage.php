@@ -7,6 +7,7 @@ class GalleryImage
     public $name;
     public $description;
     public $id;
+    public $ownerId;
     public $rank;
     public $disable;
     /**
@@ -27,6 +28,7 @@ class GalleryImage
         $this->type = isset($props['type']) ? $props['type'] : '';
         $this->description = isset($props['description']) ? $props['description'] : '';
         $this->id = isset($props['id']) ? $props['id'] : '';
+        $this->ownerId = isset($props['ownerId']) ? $props['ownerId'] : '';
         $this->rank = isset($props['rank']) ? $props['rank'] : '';
         $this->disable = isset($props['disable']) ? $props['disable'] : '';
     }
