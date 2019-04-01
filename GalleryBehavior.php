@@ -252,9 +252,9 @@ class GalleryBehavior extends Behavior
         }
     }
 
-    private function removeFile($fileName, $imageId)
+    private function removeFile($fileName)
     {
-        if (FileHelper::unlink($fileName)) {
+        if (FileHelper::findFiles($fileName)) {
             return FileHelper::unlink($fileName);
         }
 
