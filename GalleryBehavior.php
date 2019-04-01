@@ -254,12 +254,11 @@ class GalleryBehavior extends Behavior
 
     private function removeFile($fileName, $imageId)
     {
+        if (FileHelper::unlink($fileName)) {
+            return FileHelper::unlink($fileName);
+        }
 
-        return FileHelper::unlink($fileName) ?: \Yii::$app->db->createCommand()
-                    ->delete(
-                        $this->tableName,
-                        ['id' => $imageId]
-                    )->execute();
+        return $fileName;
     }
 
     /**
