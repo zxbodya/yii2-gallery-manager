@@ -252,9 +252,14 @@ class GalleryBehavior extends Behavior
         }
     }
 
-    private function removeFile($fileName)
+    private function removeFile($fileName, $imageId)
     {
-        return FileHelper::unlink($fileName);
+
+        return FileHelper::unlink($fileName) ?: \Yii::$app->db->createCommand()
+                    ->delete(
+                        $this->tableName,
+                        ['id' => $imageId]
+                    )->execute();
     }
 
     /**
@@ -284,7 +289,7 @@ class GalleryBehavior extends Behavior
     {
         foreach ($this->versions as $version => $fn) {
             $filePath = $this->getFilePath($imageId, $version);
-            $this->removeFile($filePath);
+            $this->removeFile($filePath, $imageId);
         }
         $filePath = $this->getFilePath($imageId, 'original');
         $parts = explode('/', $filePath);
