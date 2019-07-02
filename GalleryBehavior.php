@@ -380,7 +380,7 @@ class GalleryBehavior extends Behavior
         }
 
         // todo: arrange images if presented
-        return $order;
+        return $res;
     }
 
     /**
