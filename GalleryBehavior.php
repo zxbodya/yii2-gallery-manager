@@ -428,6 +428,87 @@ class GalleryBehavior extends Behavior
     }
 
     /**
+     * @param bool $direct 1 - right, 0 - left, 2 - auto
+     *
+     * @return GalleryImage[]
+     */
+    public function rotateImages($imagesData, $direct)
+    {
+        $imageIds = array_keys($imagesData);
+        $imagesToUpdate = [];
+        if ($this->_images !== null) {
+            $selected = array_combine($imageIds, $imageIds);
+            foreach ($this->_images as $img) {
+                if (isset($selected[$img->id])) {
+                    $imagesToUpdate[] = $selected[$img->id];
+                }
+            }
+        } else {
+            $rawImages = (new Query())
+                ->select(['id', 'name', 'description', 'rank'])
+                ->from($this->tableName)
+                ->where(['type' => $this->type, 'ownerId' => $this->getGalleryId()])
+                ->andWhere(['in', 'id', $imageIds])
+                ->orderBy(['rank' => 'asc'])
+                ->all();
+            foreach ($rawImages as $image) {
+                $imagesToUpdate[] = new GalleryImage($this, $image);
+            }
+        }
+
+        foreach ($imagesToUpdate as $image) {
+            /** @var GalleryImage $image */
+            $img = Image::getImagine()->open($this->getFilePath($image->id));
+
+            if ($direct == 2 )
+                $img = Image::autorotate($img);
+            else {
+                $angle = ($direct == 1) ? 90 : -90;
+                $img->rotate($angle);
+            }
+
+            $img->save($this->getFilePath($image->id));
+            $this->updateImage($image->id);
+        }
+
+        return $imagesToUpdate;
+    }
+
+    public function updateImage($imageId,$oldExtension = null)
+    {
+        $id = $imageId;
+
+        if ($oldExtension !== null) {
+            $newExtension = $this->extension;
+            $this->extension = $oldExtension;
+            $originalImage = Image::getImagine()
+                ->open($this->getFilePath($id, 'original'));
+            foreach ($this->versions as $version => $fn) {
+                $this->removeFile($this->getFilePath($id, $version));
+            }
+            $this->extension = $newExtension;
+            $originalImage->save($this->getFilePath($id, 'original'));
+        } else {
+            $originalImage = Image::getImagine()
+                ->open($this->getFilePath($id, 'original'));
+        }
+
+        foreach ($this->versions as $version => $fn) {
+            if ($version !== 'original') {
+                $this->removeFile($this->getFilePath($id, $version));
+                /** @var ImageInterface $image */
+                $image = call_user_func($fn, $originalImage);
+                if (is_array($image)) {
+                    list($image, $options) = $image;
+                } else {
+                    $options = [];
+                }
+                $image->save($this->getFilePath($id, $version), $options);
+            }
+        }
+    }
+
+    /**
      * Regenerate image versions
      * Should be called in migration on every model after changes in versions configuration
      *
