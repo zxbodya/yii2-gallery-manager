@@ -19,6 +19,7 @@ Few more screenshots:
 3. Possibility to arrange images in gallery
 4. Ability to generate few versions for each image with different configurations
 5. Drag & Drop
+6. Rotate
 
 ## Decencies
 
@@ -32,11 +33,11 @@ The preferred way to install this extension is through [composer](https://getcom
 
 Either run
 
-`php composer.phar require --prefer-dist zxbodya/yii2-gallery-manager "*@dev"`
+`php composer.phar require --prefer-dist elisevgeniy/yii2-gallery-manager "*@dev"`
 
 or add
 
-`"zxbodya/yii2-gallery-manager": "*@dev"`
+`"elisevgeniy/yii2-gallery-manager": "*@dev"`
 
 to the require section of your `composer.json` file.
 
