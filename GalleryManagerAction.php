@@ -70,6 +70,15 @@ class GalleryManagerAction extends Action
             case 'changeData':
                 return $this->actionChangeData(Yii::$app->request->post('photo'));
                 break;
+            case 'rotateLeft':
+                return $this->actionRotateLeft(Yii::$app->request->post('photo'));
+                break;
+            case 'rotateRight':
+                return $this->actionRotateRight(Yii::$app->request->post('photo'));
+                break;
+            case 'rotateAuto':
+                return $this->actionRotateAuto(Yii::$app->request->post('photo'));
+                break;
             case 'order':
                 return $this->actionOrder(Yii::$app->request->post('order'));
                 break;
@@ -168,6 +177,60 @@ class GalleryManagerAction extends Action
                 'name' => (string)$model->name,
                 'description' => (string)$model->description,
                 'preview' => $model->getUrl('preview'),
+            );
+        }
+
+        return Json::encode($resp);
+    }
+
+    public function actionRotateLeft($imagesData)
+    {
+        if (count($imagesData) == 0) {
+            throw new HttpException(400, 'Nothing to save');
+        }
+        $images = $this->behavior->rotateImages($imagesData, 0);
+
+        $resp = array();
+        foreach ($images as $image) {
+            /** @var $image GalleryImage */
+            $resp[] = array(
+                'url' => $image->getUrl('preview'),
+            );
+        }
+
+        return Json::encode($resp);
+    }
+
+    public function actionRotateRight($imagesData)
+    {
+        if (count($imagesData) == 0) {
+            throw new HttpException(400, 'Nothing to save');
+        }
+        $images = $this->behavior->rotateImages($imagesData, 1);
+
+        $resp = array();
+        foreach ($images as $image) {
+            /** @var $image GalleryImage */
+            $resp[] = array(
+                'url' => $image->getUrl('preview'),
+            );
+        }
+
+        return Json::encode($resp);
+    }
+
+    public function actionRotateAuto($imagesData)
+    {
+        if (count($imagesData) == 0) {
+            throw new HttpException(400, 'Nothing to save');
+        }
+        $images = $this->behavior->rotateImages($imagesData, 2);
+
+        $resp = array();
+        foreach ($images as $image) {
+            /** @var $image GalleryImage */
+            $resp[] = array(
+                'url' => $image->getUrl('preview'),
             );
         }
 
