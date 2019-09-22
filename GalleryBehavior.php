@@ -434,6 +434,8 @@ class GalleryBehavior extends Behavior
      */
     public function rotateImages($imagesData, $direct)
     {
+        set_time_limit(600);
+
         $imageIds = array_keys($imagesData);
         $imagesToUpdate = [];
         if ($this->_images !== null) {
