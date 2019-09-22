@@ -1,5 +1,5 @@
 {
-    "name": "zxbodya/yii2-gallery-manager",
+    "name": "elisevgeniy/yii2-gallery-manager",
     "description": "Extension for yii, that allows to manage image galleries",
     "type": "yii2-extension",
     "keywords": [
@@ -13,6 +13,10 @@
         {
             "name": "Bogdan Savluk",
             "email": "savluk.bogdan@gmail.com"
+        },
+        {
+            "name": "elisevgeniy",
+            "email": "elisevgeniy@gmail.com"
         }
     ],
     "require": {
