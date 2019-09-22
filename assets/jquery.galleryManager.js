@@ -157,8 +157,8 @@
             var photo = $(this).closest('.photo');
             var id = photo.data('id');
             // here can be question to confirm delete
-            // if (!confirm(deleteConfirmation)) return false;
-            removePhotos([id]);
+            if (confirm('Удалить фотографию?'))
+                removePhotos([id]);
             return false;
         }
 
@@ -418,7 +418,9 @@
             $('.photo.selected', $sorter).each(function () {
                 ids.push($(this).data('id'));
             });
-            removePhotos(ids);
+            if (confirm('Удалить выборанные фотографии?'))
+                if (confirm('Точно удалить выборанные фотографии?'))
+                    removePhotos(ids);
 
         });
 
@@ -441,11 +443,11 @@
         }
     }
 
-  function reloadPhotos() {
-    $('.sorter  img').map(function(){
-      this.src = this.src + '1';
-    });
-  }
+    function reloadPhotos() {
+        $('.sorter  img').map(function(){
+            this.src = this.src + '1';
+        });
+    }
 
     // The actual plugin
     $.fn.galleryManager = function (options) {
