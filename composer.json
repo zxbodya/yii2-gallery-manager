@@ -21,7 +21,8 @@
     ],
     "require": {
         "yiisoft/yii2-jui": "*",
-        "yiisoft/yii2-imagine": "*"
+        "yiisoft/yii2-imagine": "*",
+        "elisevgeniy/yii2-ffmpeg": "*"
     },
     "autoload": {
         "psr-4": {
