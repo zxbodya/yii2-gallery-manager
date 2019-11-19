@@ -293,13 +293,13 @@ class GalleryBehavior extends Behavior
             $thumbnailPath = $this->getFilePath($imageId, 'original');
             $videoPath = $this->getFolderPath($imageId) . '/' . 'video.' . $extension;
 
-//            var_export($videoPath);
+            // Перемещаем видео файл
+            rename($path, $videoPath);
 
             // Скриншот
             \Yii::$app->ffmpeg->ffmpeg([
                 'type' => 'video',
-                'input_file' => $path,
-                'output_file' => $videoPath,
+                'input_file' => $videoPath,
                 'thumbnail_image' => $thumbnailPath,
                 'thumbnail_generation' => 'yes',
             ]);
