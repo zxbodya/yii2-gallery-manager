@@ -31,6 +31,8 @@ class GalleryManager extends Widget
 
     public $options = array();
 
+    public $videoSupport = true;
+
 
     public function init()
     {
@@ -98,6 +100,8 @@ class GalleryManager extends Widget
 
         $this->options['id'] = $this->id;
         $this->options['class'] = 'gallery-manager';
+
+        $this->videoSupport = $this->behavior->videoSupport;
 
         return $this->render('galleryManager');
     }
