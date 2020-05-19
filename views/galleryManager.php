@@ -6,7 +6,6 @@
  */
 use yii\helpers\Html;
 use yii\web\View;
-
 ?>
 <?php echo Html::beginTag('div', $this->context->options); ?>
     <!-- Gallery Toolbar -->
@@ -15,7 +14,7 @@ use yii\web\View;
         <div class="btn-group" style="display: inline-block;">
             <div class="btn btn-success btn-file" style="display: inline-block">
                 <i class="glyphicon glyphicon-plus"></i><?php echo Yii::t('galleryManager/main', 'Add…'); ?>
-                <input type="file" name="gallery-image" class="afile" accept="image/*,video/*" multiple="multiple"/>
+                <input type="file" name="gallery-image" class="afile" accept="image/* <?= ($this->context->videoSupport) ? ',video/*' : ''?> " multiple="multiple"/>
             </div>
         </div>
         <div class="btn-group" style="display: inline-block;">
