@@ -102,6 +102,12 @@ class GalleryBehavior extends Behavior
     public $hasDescription = true;
 
     /**
+     * Enable video
+     * @var bool
+     */
+    public $videoSupport = true;
+
+    /**
      * Watermark flag for video preview
      * @var bool
      */
@@ -287,7 +293,7 @@ class GalleryBehavior extends Behavior
         $mime_type = FileHelper::getMimeType($path);
         $extension = explode('/', $mime_type )[1];
 
-        if (strpos($mime_type, 'video/') !== false) {
+        if (strpos($mime_type, 'video/') !== false && $this->videoSupport) {
             // Видео
 
             $thumbnailPath = $this->getFilePath($imageId, 'original');
