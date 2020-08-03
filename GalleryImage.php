@@ -7,13 +7,13 @@ class GalleryImage
     public $name;
     public $description;
     public $id;
-    public $ownerId;
+    public $ownerid;
     public $rank;
     public $disable;
     /**
      * @var GalleryBehavior
      */
-    protected $galleryBehavior;
+    public $galleryBehavior;
 
     /**
      * @param GalleryBehavior $galleryBehavior
@@ -28,7 +28,7 @@ class GalleryImage
         $this->type = isset($props['type']) ? $props['type'] : '';
         $this->description = isset($props['description']) ? $props['description'] : '';
         $this->id = isset($props['id']) ? $props['id'] : '';
-        $this->ownerId = isset($props['ownerId']) ? $props['ownerId'] : '';
+        $this->ownerid = isset($props['ownerid']) ? $props['ownerid'] : '';
         $this->rank = isset($props['rank']) ? $props['rank'] : '';
         $this->disable = isset($props['disable']) ? $props['disable'] : '';
     }

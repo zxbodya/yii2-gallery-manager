@@ -2,6 +2,8 @@
 
 namespace mixartemev\yii2\galleryManager;
 
+use Aws\ResultInterface;
+use frostealth\yii2\aws\s3\Service;
 use Imagine\Image\Box;
 use Imagine\Image\ImageInterface;
 use yii\base\Behavior;
@@ -10,6 +12,8 @@ use yii\db\ActiveRecord;
 use Yii;
 use yii\db\Query;
 use yii\imagine\Image;
+use yii\web\NotFoundHttpException;
+use function GuzzleHttp\Promise\is_fulfilled;
 
 /**
  * Behavior for adding gallery to any model.
@@ -176,9 +180,9 @@ class GalleryBehavior extends Behavior
             $query = new \yii\db\Query();
 
             $imagesData = $query
-                ->select(['id', 'name', 'type', 'ownerId', 'description', 'rank', 'disable'])
+                ->select(['id', 'name', 'type', 'ownerid', 'description', 'rank', 'disable'])
                 ->from($this->tableName)
-                ->where(['type' => $this->type, 'ownerId' => $this->getGalleryId(), 'is_in_basket' => 0])
+                ->where(['type' => $this->type, 'ownerid' => $this->getGalleryId(), 'is_in_basket' => 0])
                 ->orderBy(['rank' => 'asc'])
                 ->all();
 
@@ -203,7 +207,7 @@ class GalleryBehavior extends Behavior
 				: (new \yii\db\Query)
 					->select(['id', 'name'])
 					->from($this->tableName)
-					->where(['type' => $this->type, 'ownerId' => $this->getGalleryId()])
+					->where(['type' => $this->type, 'ownerid' => $this->getGalleryId()])
 					->one();
 			if($imageData){
 				return (new GalleryImage($this, $imageData))->getUrl('original');
@@ -229,9 +233,10 @@ class GalleryBehavior extends Behavior
 
     public function getUrl($imageId, $version = 'original')
     {
-        $path = $this->getFilePath($imageId, $version);
-        if (!file_exists($path)) {
-            return null;
+        $path = Yii::$app->params['s3domain'] . '/' . $this->getFilePath($imageId, $version);
+        if (($h = get_headers($path))[0] != 'HTTP/1.1 200 OK') {
+            print_r($path);
+            // throw new NotFoundHttpException($path);
         }
 
         if (!empty($this->timeHash)) {
@@ -258,10 +263,13 @@ class GalleryBehavior extends Behavior
      */
     public function replaceImage($imageId, $path)
     {
-        $this->createFolders($this->getFilePath($imageId, 'original'));
+        // $this->createFolders($this->getFilePath($imageId, 'original'));
 
         $originalImage = Image::getImagine()->open($path);
         //save image in original size
+
+        /** @var Service $s3 */
+        $s3 = Yii::$app->get('s3');
 
         //create image preview for gallery manager
         foreach ($this->versions as $version => $fn) {
@@ -273,9 +281,17 @@ class GalleryBehavior extends Behavior
             } else {
                 $options = [];
             }
-
-            $image
-                ->save($this->getFilePath($imageId, $version), $options);
+            // todo remove
+            $pth = Yii::$app->params['s3domain'] . '/' . $this->getFilePath($imageId, $version);
+            if (($h = get_headers($pth))[0] == 'HTTP/1.1 200 OK') {
+                return;
+            }
+            /** @var ResultInterface $result */
+            $result = $s3->upload(
+                $this->getFilePath($imageId, $version),
+                $image->copy()
+            );
+            // $image->save($this->getFilePath($imageId, $version), $options);
         }
     }
 
@@ -360,7 +376,7 @@ class GalleryBehavior extends Behavior
                 $this->tableName,
                 [
                     'type' => $this->type,
-                    'ownerId' => $this->getGalleryId()
+                    'ownerid' => $this->getGalleryId()
                 ]
 	            // ToDo еще не обработано новое поле disable
             )->execute();
@@ -394,7 +410,7 @@ class GalleryBehavior extends Behavior
                 $this->tableName,
                 [
                     'type' => $this->type,
-                    'ownerId' => $this->getGalleryId()
+                    'ownerid' => $this->getGalleryId()
                 ]
                 // ToDo еще не обработано новое поле disable
             )->execute();
@@ -471,7 +487,7 @@ class GalleryBehavior extends Behavior
             $rawImages = (new Query())
                 ->select(['id', 'name', 'description', 'rank', 'disable'])
                 ->from($this->tableName)
-                ->where(['type' => $this->type, 'ownerId' => $this->getGalleryId()])
+                ->where(['type' => $this->type, 'ownerid' => $this->getGalleryId()])
                 ->andWhere(['in', 'id', $imageIds])
                 ->orderBy(['rank' => 'asc'])
                 ->all();
