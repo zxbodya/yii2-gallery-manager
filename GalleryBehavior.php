@@ -284,13 +284,14 @@ class GalleryBehavior extends Behavior
             // todo remove
             $pth = Yii::$app->params['s3domain'] . '/' . $this->getFilePath($imageId, $version);
             if (($h = get_headers($pth))[0] == 'HTTP/1.1 200 OK') {
-                return;
+                continue;
             }
             /** @var ResultInterface $result */
             $result = $s3->upload(
                 $this->getFilePath($imageId, $version),
                 $image->copy()
             );
+            $result->get('ObjectURL');
             // $image->save($this->getFilePath($imageId, $version), $options);
         }
     }
