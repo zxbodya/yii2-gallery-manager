@@ -143,7 +143,7 @@ class GalleryBehavior extends Behavior
     }
 
     public function beforeDelete()
-    { 
+    {
         $images = $this->getImages();
         foreach ($images as $image) {
             $this->deleteImage($image->id);
@@ -163,9 +163,9 @@ class GalleryBehavior extends Behavior
         if ($this->_galleryId != $galleryId) {
             $dirPath1 = $this->directory . '/' . $this->_galleryId;
             $dirPath2 = $this->directory . '/' . $galleryId;
-	        if($this->_galleryId){
-		        rename($dirPath1, $dirPath2);
-	        }
+            if($this->_galleryId){
+                rename($dirPath1, $dirPath2);
+            }
         }
     }
 
@@ -195,29 +195,29 @@ class GalleryBehavior extends Behavior
         return $this->_images;
     }
 
-	/**
-	 * @return GalleryImage
-	 */
-	public function getPrv()
-	{
-		if ($this->_images === null) {
+    /**
+     * @return GalleryImage
+     */
+    public function getPrv()
+    {
+        if ($this->_images === null) {
 
-			$imageData = $this->owner->gi_id
-				? ['id' => $this->owner->gi_id]
-				: (new \yii\db\Query)
-					->select(['id', 'name'])
-					->from($this->tableName)
-					->where(['type' => $this->type, 'ownerid' => $this->getGalleryId()])
-					->one();
-			if($imageData){
-				return (new GalleryImage($this, $imageData))->getUrl('original');
-			}else{
-				return false;
-			}
-		}
+            $imageData = $this->owner->gi_id
+                ? ['id' => $this->owner->gi_id]
+                : (new \yii\db\Query)
+                    ->select(['id', 'name'])
+                    ->from($this->tableName)
+                    ->where(['type' => $this->type, 'ownerid' => $this->getGalleryId()])
+                    ->one();
+            if($imageData){
+                return (new GalleryImage($this, $imageData))->getUrl('original');
+            }else{
+                return false;
+            }
+        }
 
-		return $this->_images[0]->getUrl('original');
-	}
+        return $this->_images[0]->getUrl('original');
+    }
 
     protected function getFileName($imageId, $version = 'original')
     {
@@ -252,7 +252,7 @@ class GalleryBehavior extends Behavior
 
     public function getFilePath($imageId, $version = 'original')
     {
-        return $this->directory . '/' . $this->getFileName($imageId, $version);
+        return $this->directory . '/img/' . $this->getFileName($imageId, $version);
     }
 
     /**
@@ -287,12 +287,11 @@ class GalleryBehavior extends Behavior
                 continue;
             }
             /** @var ResultInterface $result */
-            $result = $s3->upload(
+            $result = $s3->put(
                 $this->getFilePath($imageId, $version),
-                $image->copy()
+                $image->get('jpg', $options)
             );
             $result->get('ObjectURL');
-            // $image->save($this->getFilePath($imageId, $version), $options);
         }
     }
 
@@ -334,7 +333,7 @@ class GalleryBehavior extends Behavior
 
     /////////////////////////////// ========== Public Actions ============ ///////////////////////////
     public function deleteImage($imageId)
-    {   
+    {
         foreach ($this->versions as $version => $fn) {
             $filePath = $this->getFilePath($imageId, $version);
             $this->removeFile($filePath);
@@ -354,7 +353,7 @@ class GalleryBehavior extends Behavior
     }
 
     public function deleteImages($imageIds)
-    {   
+    {
         foreach ($imageIds as $imageId) {
             $this->deleteImage($imageId);
         }
@@ -370,7 +369,7 @@ class GalleryBehavior extends Behavior
     }
 
     public function addImage($fileName)
-    {   
+    {
         $db = \Yii::$app->db;
         $db->createCommand()
             ->insert(
@@ -379,7 +378,7 @@ class GalleryBehavior extends Behavior
                     'type' => $this->type,
                     'ownerid' => $this->getGalleryId()
                 ]
-	            // ToDo еще не обработано новое поле disable
+            // ToDo еще не обработано новое поле disable
             )->execute();
 
         $id = $db->getLastInsertID('gallery_image_id_seq');
@@ -395,7 +394,7 @@ class GalleryBehavior extends Behavior
         \backend\behaviors\ChangeLogBehavior::logAdd($id, $this->entity_type);
 
         $galleryImage = new GalleryImage($this, ['id' => $id]);
-             
+
         if ($this->_images !== null) {
             $this->_images[] = $galleryImage;
         }
@@ -413,7 +412,7 @@ class GalleryBehavior extends Behavior
                     'type' => $this->type,
                     'ownerid' => $this->getGalleryId()
                 ]
-                // ToDo еще не обработано новое поле disable
+            // ToDo еще не обработано новое поле disable
             )->execute();
 
         $id = $db->getLastInsertID('gallery_image_id_seq');
@@ -427,7 +426,7 @@ class GalleryBehavior extends Behavior
         $this->replaceImage($id, $fileName);
 
         \backend\behaviors\ChangeLogBehavior::logAdd($id, $this->entity_type);
-        
+
         $galleryImage = new GalleryImage($this, ['id' => $id]);
 
         if ($this->_images !== null) {
