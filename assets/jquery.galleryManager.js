@@ -7,6 +7,7 @@
 
     nameLabel: 'Name',
     descriptionLabel: 'Description',
+    altLabel: 'Alt',
 
     hasName: true,
     hasDesc: true,
@@ -52,7 +53,7 @@
         .replace(/>/g, '&gt;');
     }
 
-    function createEditorElement(id, src, name, description) {
+    function createEditorElement(id, src, name, description, alt) {
 
       var html = '<div class="photo-editor row">' +
         '<div class="col-xs-4">' +
@@ -74,12 +75,18 @@
         '<textarea class="form-control" name="photo[' + id + '][description]" rows="3" cols="40" class="input-xlarge" id="photo_description_' + id + '">' + htmlEscape(description) + '</textarea>' +
         '</div>' : '') +
 
+        '<div class="form-group">' +
+        '<label class="control-label" for="photo_alt_' + id + '">' + opts.altLabel + ':</label>' +
+          '<input class="form-control" type="text" name="photo[' + id + '][alt]" class="input-xlarge" value="' + htmlEscape(alt) + '" id="photo_alt_' + id + '"/>' +
+        '</div>' +
+
         '</div>' +
         '</div>';
       return $(html);
     }
 
     var photoTemplate = '<div class="photo">' + '<div class="image-preview"><img src=""/></div><div class="caption">';
+    photoTemplate += '<alt></alt>';
     if (opts.hasName) {
       photoTemplate += '<h5></h5>';
     }
@@ -96,7 +103,7 @@
     '</div><input type="checkbox" class="photo-select"/></div>';
 
 
-    function addPhoto(id, src, name, description, rank) {
+    function addPhoto(id, src, name, description, rank, alt) {
       var photo = $(photoTemplate);
       photos[id] = photo;
       photo.data('id', id);
@@ -109,6 +116,8 @@
       if (opts.hasDesc){
         $('.caption p', photo).text(description);
       }
+
+        $('.caption alt', photo).text(alt);
 
       $images.append(photo);
       return photo;
@@ -123,8 +132,9 @@
         var photo = photos[id],
           src = $('img', photo).attr('src'),
           name = $('.caption h5', photo).text(),
-          description = $('.caption p', photo).text();
-        form.append(createEditorElement(id, src, name, description));
+          description = $('.caption p', photo).text(),
+          alt = $('.caption alt', photo).text();
+        form.append(createEditorElement(id, src, name, description, alt));
       }
       if (l > 0){
         $editorModal.modal('show');
@@ -236,7 +246,7 @@
             uploadedCount++;
             if (this.status == 200) {
               var resp = JSON.parse(this.response);
-              addPhoto(resp['id'], resp['preview'], resp['name'], resp['description'], resp['rank']);
+              addPhoto(resp['id'], resp['preview'], resp['name'], resp['description'], resp['rank'], resp['alt']);
               ids.push(resp['id']);
             } else {
               // exception !!!
@@ -325,7 +335,7 @@
           processData: false,
           dataType: "json"
         }).done(function (resp) {
-          addPhoto(resp['id'], resp['preview'], resp['name'], resp['description'], resp['rank']);
+          addPhoto(resp['id'], resp['preview'], resp['name'], resp['description'], resp['rank'], resp['alt']);
           ids.push(resp['id']);
           $uploadProgress.css('width', '100%');
           $progressOverlay.hide();
@@ -346,6 +356,7 @@
             $('.caption h5', photo).text(p['name']);
           if (opts.hasDesc)
             $('.caption p', photo).text(p['description']);
+            $('.caption alt', photo).text(p['alt']);
         }
         $editorModal.modal('hide');
         //deselect all items after editing
@@ -393,7 +404,7 @@
 
     for (var i = 0, l = opts.photos.length; i < l; i++) {
       var resp = opts.photos[i];
-      addPhoto(resp['id'], resp['preview'], resp['name'], resp['description'], resp['rank']);
+      addPhoto(resp['id'], resp['preview'], resp['name'], resp['description'], resp['rank'], resp['alt']);
     }
   }
 

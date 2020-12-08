@@ -172,7 +172,7 @@ class GalleryBehavior extends Behavior
             $query = new \yii\db\Query();
 
             $imagesData = $query
-                ->select(['id', 'name', 'description', 'rank'])
+                ->select(['id', 'name', 'description', 'rank', 'alt'])
                 ->from($this->tableName)
                 ->where(['type' => $this->type, 'ownerId' => $this->getGalleryId()])
                 ->orderBy(['rank' => 'asc'])
@@ -254,7 +254,11 @@ class GalleryBehavior extends Behavior
 
     private function removeFile($fileName)
     {
-        return FileHelper::unlink($fileName);
+        if (file_exists($fileName)) {
+            return FileHelper::unlink($fileName);
+        }
+
+        return $fileName;
     }
 
     /**
@@ -284,7 +288,7 @@ class GalleryBehavior extends Behavior
     {
         foreach ($this->versions as $version => $fn) {
             $filePath = $this->getFilePath($imageId, $version);
-            $this->removeFile($filePath);
+            $this->removeFile($filePath, $imageId);
         }
         $filePath = $this->getFilePath($imageId, 'original');
         $parts = explode('/', $filePath);
@@ -376,7 +380,7 @@ class GalleryBehavior extends Behavior
         }
 
         // todo: arrange images if presented
-        return $order;
+        return $res;
     }
 
     /**
@@ -397,7 +401,7 @@ class GalleryBehavior extends Behavior
             }
         } else {
             $rawImages = (new Query())
-                ->select(['id', 'name', 'description', 'rank'])
+                ->select(['id', 'name', 'description', 'rank', 'alt'])
                 ->from($this->tableName)
                 ->where(['type' => $this->type, 'ownerId' => $this->getGalleryId()])
                 ->andWhere(['in', 'id', $imageIds])
@@ -416,10 +420,13 @@ class GalleryBehavior extends Behavior
             if (isset($imagesData[$image->id]['description'])) {
                 $image->description = $imagesData[$image->id]['description'];
             }
+            if (isset($imagesData[$image->id]['alt'])) {
+                $image->alt = $imagesData[$image->id]['alt'];
+            }
             \Yii::$app->db->createCommand()
                 ->update(
                     $this->tableName,
-                    ['name' => $image->name, 'description' => $image->description],
+                    ['name' => $image->name, 'description' => $image->description, 'alt' => $image->alt],
                     ['id' => $image->id]
                 )->execute();
         }
