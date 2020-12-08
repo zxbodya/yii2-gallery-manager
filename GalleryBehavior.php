@@ -102,6 +102,18 @@ class GalleryBehavior extends Behavior
     public $hasDescription = true;
 
     /**
+     * Enable video
+     * @var bool
+     */
+    public $videoSupport = true;
+
+    /**
+     * Watermark flag for video preview
+     * @var bool
+     */
+    public $videoWatermark = false;
+
+    /**
      * @var string Table name for saving gallery images meta information
      */
     public $tableName = '{{%gallery_image}}';
@@ -199,6 +211,17 @@ class GalleryBehavior extends Behavior
         );
     }
 
+    protected function getFolderName($imageId)
+    {
+        return implode(
+            '/',
+            [
+                $this->getGalleryId(),
+                $imageId
+            ]
+        );
+    }
+
     public function getUrl($imageId, $version = 'original')
     {
         $path = $this->getFilePath($imageId, $version);
@@ -218,9 +241,43 @@ class GalleryBehavior extends Behavior
         return $this->url . '/' . $this->getFileName($imageId, $version) . $suffix;
     }
 
+    public function getVideoUrl($imageId)
+    {
+        $dir = $this->getFolderPath($imageId);
+        $files = scandir($dir);
+
+        $search = 'video.';
+        $filename = '';
+
+        foreach ($files as $index => $file){
+            if (strpos($file, $search) !== false) $filename = $file;
+        }
+
+        $path = $dir . '/' . $filename;
+
+        if (!file_exists($path)) {
+            return null;
+        }
+
+        if (!empty($this->timeHash)) {
+
+            $time = filemtime($path);
+            $suffix = '?' . $this->timeHash . '=' . crc32($time);
+        } else {
+            $suffix = '';
+        }
+
+        return $this->url . '/' .  $this->getFolderName($imageId) . '/' . $filename . $suffix;
+    }
+
     public function getFilePath($imageId, $version = 'original')
     {
         return $this->directory . '/' . $this->getFileName($imageId, $version);
+    }
+
+    public function getFolderPath($imageId)
+    {
+        return $this->directory . '/' . $this->getFolderName($imageId);
     }
 
     /**
@@ -233,23 +290,79 @@ class GalleryBehavior extends Behavior
     {
         $this->createFolders($this->getFilePath($imageId, 'original'));
 
-        $originalImage = Image::getImagine()->open($path);
-        //save image in original size
+        $mime_type = FileHelper::getMimeType($path);
+        $extension = explode('/', $mime_type )[1];
 
-        //create image preview for gallery manager
-        foreach ($this->versions as $version => $fn) {
-            /** @var ImageInterface $image */
+        if (strpos($mime_type, 'video/') !== false && $this->videoSupport) {
+            // Видео
 
-            $image = call_user_func($fn, $originalImage);
-            if (is_array($image)) {
-                list($image, $options) = $image;
-            } else {
-                $options = [];
+            $thumbnailPath = $this->getFilePath($imageId, 'original');
+            $videoPath = $this->getFolderPath($imageId) . '/' . 'video.' . $extension;
+
+            // Перемещаем видео файл
+            rename($path, $videoPath);
+
+            // Скриншот
+            \Yii::$app->ffmpeg->ffmpeg([
+                'type' => 'video',
+                'input_file' => $videoPath,
+                'thumbnail_image' => $thumbnailPath,
+                'thumbnail_generation' => 'yes',
+            ]);
+
+            // Watermark
+            if ($this->videoWatermark) {
+                $watermarkImage = '@zxbodya/yii2/galleryManager/assets/video-play-watermark_128.png';
+                $watermarkSize = getimagesize($thumbnailPath); // Определяем размер картинки
+                $watermarkWidth = $watermarkSize[0]; // Ширина картинки
+                $watermarkHeight = $watermarkSize[1]; // Высота картинки
+                $watermarkPositionLeft = $watermarkWidth / 2 - 64; // Новая позиция watermark по оси X (горизонтально)
+                $watermarkPositionTop = $watermarkHeight / 2 - 64;  // Новая позиция watermark по оси Y (вертикально)
+                if ($watermarkPositionLeft < 0) $watermarkPositionLeft = 0;
+                if ($watermarkPositionTop < 0) $watermarkPositionTop = 0;
+
+                Image::watermark($thumbnailPath, $watermarkImage, [$watermarkPositionLeft, $watermarkPositionTop])->save(\Yii::getAlias($thumbnailPath));
+            }
+            // Остальные размеры
+            $thumbnailImage = Image::getImagine()->open($thumbnailPath);
+
+            foreach ($this->versions as $version => $fn) {
+                /** @var ImageInterface $image */
+
+                $image = call_user_func($fn, $thumbnailImage);
+                if (is_array($image)) {
+                    list($image, $options) = $image;
+                } else {
+                    $options = [];
+                }
+
+                $image
+                    ->save($this->getFilePath($imageId, $version), $options);
             }
 
-            $image
-                ->save($this->getFilePath($imageId, $version), $options);
+        } else {
+            // Изображение
+
+            $originalImage = Image::getImagine()->open($path);
+            //save image in original size
+
+            //create image preview for gallery manager
+            foreach ($this->versions as $version => $fn) {
+                /** @var ImageInterface $image */
+
+                $image = call_user_func($fn, $originalImage);
+                if (is_array($image)) {
+                    list($image, $options) = $image;
+                } else {
+                    $options = [];
+                }
+
+                $image
+                    ->save($this->getFilePath($imageId, $version), $options);
+            }
         }
+
+
     }
 
     private function removeFile($fileName)
@@ -286,6 +399,22 @@ class GalleryBehavior extends Behavior
             $filePath = $this->getFilePath($imageId, $version);
             $this->removeFile($filePath);
         }
+
+        $dir = $this->getFolderPath($imageId);
+        $files = scandir($dir);
+
+
+        // Удаляем видео
+        $search = 'video.';
+        $filename = false;
+        foreach ($files as $index => $file){
+            if (strpos($file, $search) !== false) $filename = $file;
+        }
+        $path = $dir . '/' . $filename;
+        if ($filename !== false){
+            $this->removeFile($path);
+        }
+
         $filePath = $this->getFilePath($imageId, 'original');
         $parts = explode('/', $filePath);
         $parts = array_slice($parts, 0, count($parts) - 1);
@@ -425,6 +554,89 @@ class GalleryBehavior extends Behavior
         }
 
         return $imagesToUpdate;
+    }
+
+    /**
+     * @param bool $direct 1 - right, 0 - left, 2 - auto
+     *
+     * @return GalleryImage[]
+     */
+    public function rotateImages($imagesData, $direct)
+    {
+        set_time_limit(600);
+
+        $imageIds = array_keys($imagesData);
+        $imagesToUpdate = [];
+        if ($this->_images !== null) {
+            $selected = array_combine($imageIds, $imageIds);
+            foreach ($this->_images as $img) {
+                if (isset($selected[$img->id])) {
+                    $imagesToUpdate[] = $selected[$img->id];
+                }
+            }
+        } else {
+            $rawImages = (new Query())
+                ->select(['id', 'name', 'description', 'rank'])
+                ->from($this->tableName)
+                ->where(['type' => $this->type, 'ownerId' => $this->getGalleryId()])
+                ->andWhere(['in', 'id', $imageIds])
+                ->orderBy(['rank' => 'asc'])
+                ->all();
+            foreach ($rawImages as $image) {
+                $imagesToUpdate[] = new GalleryImage($this, $image);
+            }
+        }
+
+        foreach ($imagesToUpdate as $image) {
+            /** @var GalleryImage $image */
+            $img = Image::getImagine()->open($this->getFilePath($image->id));
+
+            if ($direct == 2 )
+                $img = Image::autorotate($img);
+            else {
+                $angle = ($direct == 1) ? 90 : -90;
+                $img->rotate($angle);
+            }
+
+            $img->save($this->getFilePath($image->id));
+            $this->updateImage($image->id);
+        }
+
+        return $imagesToUpdate;
+    }
+
+    public function updateImage($imageId,$oldExtension = null)
+    {
+        $id = $imageId;
+
+        if ($oldExtension !== null) {
+            $newExtension = $this->extension;
+            $this->extension = $oldExtension;
+            $originalImage = Image::getImagine()
+                ->open($this->getFilePath($id, 'original'));
+            foreach ($this->versions as $version => $fn) {
+                $this->removeFile($this->getFilePath($id, $version));
+            }
+            $this->extension = $newExtension;
+            $originalImage->save($this->getFilePath($id, 'original'));
+        } else {
+            $originalImage = Image::getImagine()
+                ->open($this->getFilePath($id, 'original'));
+        }
+
+        foreach ($this->versions as $version => $fn) {
+            if ($version !== 'original') {
+                $this->removeFile($this->getFilePath($id, $version));
+                /** @var ImageInterface $image */
+                $image = call_user_func($fn, $originalImage);
+                if (is_array($image)) {
+                    list($image, $options) = $image;
+                } else {
+                    $options = [];
+                }
+                $image->save($this->getFilePath($id, $version), $options);
+            }
+        }
     }
 
     /**

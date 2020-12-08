@@ -35,6 +35,23 @@ class GalleryImage
      */
     public function getUrl($version)
     {
-        return $this->galleryBehavior->getUrl($this->id, $version);
+        if ($version == 'video' && $this->isVideo())
+            return $this->galleryBehavior->getVideoUrl($this->id);
+        else
+            return $this->galleryBehavior->getUrl($this->id, $version);
+    }
+
+    public function isVideo(){
+            $dir = $this->galleryBehavior->getFolderPath($this->id);
+            $files = scandir($dir);
+
+            $search = 'video.';
+            $result = false;
+
+            foreach ($files as $index => $file){
+                if (strpos($file, $search) !== false) $result = true;
+            }
+
+            return $result;
     }
 }

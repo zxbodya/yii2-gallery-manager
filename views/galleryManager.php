@@ -6,7 +6,6 @@
  */
 use yii\helpers\Html;
 use yii\web\View;
-
 ?>
 <?php echo Html::beginTag('div', $this->context->options); ?>
     <!-- Gallery Toolbar -->
@@ -15,7 +14,7 @@ use yii\web\View;
         <div class="btn-group" style="display: inline-block;">
             <div class="btn btn-success btn-file" style="display: inline-block">
                 <i class="glyphicon glyphicon-plus"></i><?php echo Yii::t('galleryManager/main', 'Add…'); ?>
-                <input type="file" name="gallery-image" class="afile" accept="image/*" multiple="multiple"/>
+                <input type="file" name="gallery-image" class="afile" accept="image/* <?= ($this->context->videoSupport) ? ',video/*' : ''?> " multiple="multiple"/>
             </div>
         </div>
         <div class="btn-group" style="display: inline-block;">
@@ -55,10 +54,19 @@ use yii\web\View;
                     <div class="form"></div>
                 </div>
                 <div class="modal-footer">
+                    <a href="#" class="btn btn-default rotate-left">
+                        <?php echo Yii::t('galleryManager/main', 'Rotate left') ?>
+                    </a>
+                    <a href="#" class="btn btn-default rotate-auto">
+                        <?php echo Yii::t('galleryManager/main', 'Rotate auto') ?>
+                    </a>
+                    <a href="#" class="btn btn-default rotate-right">
+                        <?php echo Yii::t('galleryManager/main', 'Rotate right') ?>
+                    </a>
                     <a href="#" class="btn btn-primary save-changes">
                         <?php echo Yii::t('galleryManager/main', 'Save changes') ?>
                     </a>
-                    <a href="#" class="btn" data-dismiss="modal"><?php echo Yii::t(
+                    <a href="#" class="btn btn-warning" data-dismiss="modal"><?php echo Yii::t(
                             'galleryManager/main',
                             'Close'
                         ) ?></a>

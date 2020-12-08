@@ -31,6 +31,8 @@ class GalleryManager extends Widget
 
     public $options = array();
 
+    public $videoSupport = true;
+
 
     public function init()
     {
@@ -82,6 +84,9 @@ class GalleryManager extends Widget
             'uploadUrl' => Url::to($baseUrl + ['action' => 'ajaxUpload']),
             'deleteUrl' => Url::to($baseUrl + ['action' => 'delete']),
             'updateUrl' => Url::to($baseUrl + ['action' => 'changeData']),
+            'rotateLeftUrl' => Url::to($baseUrl + ['action' => 'rotateLeft']),
+            'rotateRightUrl' => Url::to($baseUrl + ['action' => 'rotateRight']),
+            'rotateAutoUrl' => Url::to($baseUrl + ['action' => 'rotateAuto']),
             'arrangeUrl' => Url::to($baseUrl + ['action' => 'order']),
             'nameLabel' => Yii::t('galleryManager/main', 'Name'),
             'descriptionLabel' => Yii::t('galleryManager/main', 'Description'),
@@ -95,6 +100,8 @@ class GalleryManager extends Widget
 
         $this->options['id'] = $this->id;
         $this->options['class'] = 'gallery-manager';
+
+        $this->videoSupport = $this->behavior->videoSupport;
 
         return $this->render('galleryManager');
     }
