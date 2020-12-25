@@ -376,7 +376,8 @@ class GalleryBehavior extends Behavior
                 $this->tableName,
                 [
                     'type' => $this->type,
-                    'ownerid' => $this->getGalleryId()
+                    'ownerid' => $this->getGalleryId(),
+                    'created_at' => time(),
                 ]
             // ToDo еще не обработано новое поле disable
             )->execute();
