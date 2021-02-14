@@ -4,6 +4,7 @@ namespace zxbodya\yii2\galleryManager;
 
 use Imagine\Image\Box;
 use Imagine\Image\ImageInterface;
+use Yii;
 use yii\base\Behavior;
 use yii\base\Exception;
 use yii\db\ActiveRecord;
@@ -17,6 +18,7 @@ use yii\imagine\Image;
  * @author Bogdan Savluk <savluk.bogdan@gmail.com>
  *
  * @property string $galleryId
+ * @property string $temporaryId
  */
 class GalleryBehavior extends Behavior
 {
@@ -25,6 +27,11 @@ class GalleryBehavior extends Behavior
      * @var string
      */
     public $pkGlue = '_';
+    /**
+     * The prefix of string for temporary id for new models
+     * @var string
+     */
+    public $temporaryPrefix = 'temp';
     /**
      * @var string Type name assigned to model in image attachment action
      * @see     GalleryManagerAction::$types
@@ -133,6 +140,8 @@ class GalleryBehavior extends Behavior
             ActiveRecord::EVENT_BEFORE_DELETE => 'beforeDelete',
             ActiveRecord::EVENT_AFTER_UPDATE => 'afterUpdate',
             ActiveRecord::EVENT_AFTER_FIND => 'afterFind',
+            ActiveRecord::EVENT_BEFORE_INSERT => 'afterFind',
+            ActiveRecord::EVENT_AFTER_INSERT => 'afterInsert',
         ];
     }
 
@@ -142,8 +151,7 @@ class GalleryBehavior extends Behavior
         foreach ($images as $image) {
             $this->deleteImage($image->id);
         }
-        $dirPath = $this->directory . '/' . $this->getGalleryId();
-        @rmdir($dirPath);
+        $this->removeDirectory($this->getDirectoryPath());
     }
 
     public function afterFind()
@@ -154,10 +162,37 @@ class GalleryBehavior extends Behavior
     public function afterUpdate()
     {
         $galleryId = $this->getGalleryId();
-        if ($this->_galleryId != $galleryId) {
+        if ($this->_galleryId && ($this->_galleryId != $galleryId)) {
             $dirPath1 = $this->directory . '/' . $this->_galleryId;
             $dirPath2 = $this->directory . '/' . $galleryId;
-            rename($dirPath1, $dirPath2);
+            if (is_dir($dirPath1)) {
+                rename($dirPath1, $dirPath2);
+            }
+        }
+    }
+
+    /**
+     * Move dir and change id to actual
+     * @throws Exception
+     * @throws \yii\db\Exception
+     */
+    public function afterInsert()
+    {
+        $galleryId = $this->getGalleryId();
+        if ($this->_galleryId && ($this->_galleryId != $galleryId)) {
+
+            \Yii::$app->db->createCommand()
+                ->update(
+                    $this->tableName,
+                    ['ownerId' => $galleryId],
+                    ['ownerId' => $this->_galleryId, 'type' => $this->type]
+                )->execute();
+
+            $dirPath1 = $this->directory . '/' . $this->_galleryId;
+            $dirPath2 = $this->directory . '/' . $galleryId;
+            if (is_dir($dirPath1)) {
+                rename($dirPath1, $dirPath2);
+            }
         }
     }
 
@@ -165,6 +200,7 @@ class GalleryBehavior extends Behavior
 
     /**
      * @return GalleryImage[]
+     * @throws Exception
      */
     public function getImages()
     {
@@ -223,6 +259,39 @@ class GalleryBehavior extends Behavior
         return $this->directory . '/' . $this->getFileName($imageId, $version);
     }
 
+    public function getDirectoryPath()
+    {
+        return $this->directory . '/' . $this->getGalleryId();
+    }
+
+    /**
+     * Generate a temporary id for new models
+     * @return string
+     */
+    public function getTemporaryId()
+    {
+        return $this->temporaryPrefix . Yii::$app->session->getId();
+    }
+
+    /**
+     * Get Gallery Id
+     *
+     * @return mixed as string or integer
+     * @throws Exception
+     */
+    public function getGalleryId()
+    {
+        $pk = $this->owner->getPrimaryKey();
+        if ($pk === null) {
+            $pk = $this->temporaryId;
+        }
+        if (is_array($pk)) {
+            return implode($this->pkGlue, $pk);
+        } else {
+            return $pk;
+        }
+    }
+
     /**
      * Replace existing image by specified file
      *
@@ -252,31 +321,48 @@ class GalleryBehavior extends Behavior
         }
     }
 
+    /**
+     * Remove single image file
+     * @param $fileName
+     * @return bool
+     */
     private function removeFile($fileName)
     {
-        return FileHelper::unlink($fileName);
-    }
-
-    /**
-     * Get Gallery Id
-     *
-     * @return mixed as string or integer
-     * @throws Exception
-     */
-    public function getGalleryId()
-    {
-        $pk = $this->owner->getPrimaryKey();
-        if (is_array($pk)) {
-            return implode($this->pkGlue, $pk);
-        } else {
-            return $pk;
+        try {
+            return FileHelper::unlink($fileName);
+        } catch (\yii\base\ErrorException $exception) {
+            return false;
         }
     }
 
+    /**
+     * Remove a folders for gallery files
+     * @param $filePath string the filename of image
+     * @return bool
+     */
+    private function removeDirectory($filePath)
+    {
+        try {
+            FileHelper::removeDirectory(dirname($filePath));
+        } catch (\yii\base\ErrorException $exception) {
+            return false;
+        }
 
+        return true;
+    }
+
+    /**
+     * Create a folders for gallery files
+     * @param $filePath string the filename of image
+     * @return bool
+     */
     private function createFolders($filePath)
     {
-        return FileHelper::createDirectory(FileHelper::normalizePath(dirname($filePath)), 0777);
+        try {
+            return FileHelper::createDirectory(FileHelper::normalizePath(dirname($filePath)), 0777);
+        } catch (\yii\base\Exception $exception) {
+            return false;
+        }
     }
 
     /////////////////////////////// ========== Public Actions ============ ///////////////////////////
@@ -287,10 +373,7 @@ class GalleryBehavior extends Behavior
             $this->removeFile($filePath);
         }
         $filePath = $this->getFilePath($imageId, 'original');
-        $parts = explode('/', $filePath);
-        $parts = array_slice($parts, 0, count($parts) - 1);
-        $dirPath = implode('/', $parts);
-        @rmdir($dirPath);
+        $this->removeDirectory($filePath);
 
         $db = \Yii::$app->db;
         $db->createCommand()
@@ -313,6 +396,35 @@ class GalleryBehavior extends Behavior
                     return !isset($removed[$image->id]);
                 }
             );
+        }
+        if (is_null($this->_images)) {
+            $this->removeDirectory($this->getDirectoryPath());
+        }
+    }
+
+    /**
+     * Remove images for expired session
+     * actions is a {'apiRoute'}?action=deleteOrphan&type={'type'}&behaviorName={'behaviorName'}
+     * @throws \yii\base\ErrorException
+     * @throws \yii\db\Exception
+     */
+    public function deleteOrphanImages()
+    {
+        $toDelete = \Yii::$app->db->createCommand(
+            'SELECT DISTINCT `ownerId` FROM ' . $this->tableName . ' WHERE `ownerId` LIKE :ownerId AND `type` = :type',
+            [':ownerId' => $this->temporaryPrefix . '%', ':type' => $this->type]
+        )->queryColumn();
+
+        foreach ($toDelete as $item) {
+            \Yii::$app->db->createCommand()
+                ->delete(
+                    $this->tableName,
+                    [
+                        'type' => $this->type,
+                        'ownerId' => $item,
+                    ]
+                )->execute();
+            FileHelper::removeDirectory($this->directory . '/' . $item);
         }
     }
 
@@ -383,6 +495,8 @@ class GalleryBehavior extends Behavior
      * @param array $imagesData
      *
      * @return GalleryImage[]
+     * @throws Exception
+     * @throws \yii\db\Exception
      */
     public function updateImagesData($imagesData)
     {
@@ -432,6 +546,7 @@ class GalleryBehavior extends Behavior
      * Should be called in migration on every model after changes in versions configuration
      *
      * @param string|null $oldExtension
+     * @throws Exception
      */
     public function updateImages($oldExtension = null)
     {
