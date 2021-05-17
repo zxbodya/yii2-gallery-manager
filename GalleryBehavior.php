@@ -172,7 +172,7 @@ class GalleryBehavior extends Behavior
             $query = new \yii\db\Query();
 
             $imagesData = $query
-                ->select(['id', 'name', 'description', 'rank'])
+                ->select('*')
                 ->from($this->tableName)
                 ->where(['type' => $this->type, 'ownerId' => $this->getGalleryId()])
                 ->orderBy(['rank' => 'asc'])
@@ -187,21 +187,21 @@ class GalleryBehavior extends Behavior
         return $this->_images;
     }
 
-    protected function getFileName($imageId, $version = 'original')
+    protected function getFileName($imageId, $version = 'original', $extension = null)
     {
         return implode(
             '/',
             [
                 $this->getGalleryId(),
                 $imageId,
-                $version . '.' . $this->extension,
+                $version . '.' . $this->getImageExtension($imageId, $extension),
             ]
         );
     }
 
-    public function getUrl($imageId, $version = 'original')
+    public function getUrl($imageId, $version = 'original', $extension = null)
     {
-        $path = $this->getFilePath($imageId, $version);
+        $path = $this->getFilePath($imageId, $version, $extension);
 
         if (!file_exists($path)) {
             return null;
@@ -215,12 +215,12 @@ class GalleryBehavior extends Behavior
             $suffix = '';
         }
 
-        return $this->url . '/' . $this->getFileName($imageId, $version) . $suffix;
+        return $this->url . '/' . $this->getFileName($imageId, $version, $extension) . $suffix;
     }
 
-    public function getFilePath($imageId, $version = 'original')
+    public function getFilePath($imageId, $version = 'original', $extension = null)
     {
-        return $this->directory . '/' . $this->getFileName($imageId, $version);
+        return $this->directory . '/' . $this->getFileName($imageId, $version, $extension);
     }
 
     /**
@@ -273,6 +273,25 @@ class GalleryBehavior extends Behavior
         }
     }
 
+    /**
+     * Get Image Extension
+     * @return string
+     */
+    public function getImageExtension($imageId, $extension = null)
+    {   
+        if (!empty($extension)) {
+            return $extension;
+        } elseif (!empty($this->extension)) {
+            return $this->extension;
+        } else {
+            $image = (new Query())
+                ->select('*')
+                ->from($this->tableName)
+                ->where(['id' => $imageId])
+                ->one();
+            return isset($image['extension']) ? $image['extension'] : '';
+        }
+    }
 
     private function createFolders($filePath)
     {
@@ -335,6 +354,29 @@ class GalleryBehavior extends Behavior
                 ['rank' => $id],
                 ['id' => $id]
             )->execute();
+
+        $schema = $db->getTableSchema($this->tableName);
+        if (isset($schema->columns['extension'])) {
+            $imageType = getimagesize($fileName)[2];
+            switch ($imageType) {
+                case IMAGETYPE_JPEG:
+                    $extension = 'jpg';
+                    break;
+                case IMAGETYPE_PNG:
+                    $extension = 'png';
+                    break;
+                
+                default:
+                    $extension = '';
+                    break;
+            }
+            $db->createCommand()
+                ->update(
+                    $this->tableName,
+                    ['extension' => $extension],
+                    ['id' => $id]
+                )->execute();
+        }
 
         $this->replaceImage($id, $fileName);
 

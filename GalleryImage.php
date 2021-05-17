@@ -8,6 +8,7 @@ class GalleryImage
     public $description;
     public $id;
     public $rank;
+    public $extension;
     /**
      * @var GalleryBehavior
      */
@@ -26,6 +27,7 @@ class GalleryImage
         $this->description = isset($props['description']) ? $props['description'] : '';
         $this->id = isset($props['id']) ? $props['id'] : '';
         $this->rank = isset($props['rank']) ? $props['rank'] : '';
+        $this->extension = isset($props['extension']) ? $props['extension'] : '';
     }
 
     /**
@@ -35,6 +37,6 @@ class GalleryImage
      */
     public function getUrl($version)
     {
-        return $this->galleryBehavior->getUrl($this->id, $version);
+        return $this->galleryBehavior->getUrl($this->id, $version, $this->extension);
     }
 }
